@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5",
+    "outDir": "wwwroot/js"
+  },
+  "files": [
+    "./TS/ClientModel.ts",
+    "./TS/Db.ts",
+    "./TS/KnockoutHelper.ts",
+    "./TS/Map.ts",
+    "./TS/ServerApi.ts",
+    "./TS/ServerModel.ts",
+    "./TS/Sidebars.ts",
+    "./wwwroot/lib/moment/moment.d.ts",
+    "./typings/index.d.ts"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "asp.net",
+  "dependencies": {},
+  "globalDevDependencies": {
+    "bootstrap": "registry:dt/bootstrap#3.3.5+20160316155526",
+    "dropzone": "registry:dt/dropzone#4.3.0+20160412155034",
+    "jquery": "registry:dt/jquery#1.10.0+20160417213236",
+    "jqueryui": "registry:dt/jqueryui#1.9.0+20160509160024",
+    "knockout": "registry:dt/knockout#0.0.0+20160428162840",
+    "moment": "registry:dt/moment#2.8.0+20160316155526"
+  }
+}

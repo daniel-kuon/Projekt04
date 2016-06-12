@@ -236,8 +236,8 @@ _Pvt_Extensions
 .fake/
 
 # Project specific
-wwwroot/lib/
-wwwroot/js/
-wwwroot/css/
+**/wwwroot/lib/
+**/wwwroot/js/
+**/wwwroot/css/
 **/*.min.js
 **/*.min.css
