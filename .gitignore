@@ -234,3 +234,10 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Project specific
+wwwroot/lib/
+wwwroot/js/
+wwwroot/css/
+**/*.min.js
+**/*.min.css
