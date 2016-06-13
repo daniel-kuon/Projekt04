@@ -1,6 +1,5 @@
 ﻿{
   "userSecretsId": "aspnet-ScrumBoard-8069e91f-52b2-4361-ba63-1ad02678dd67",
-
   "dependencies": {
     "Microsoft.NETCore.App": {
       "version": "1.0.0-rc2-3002702",

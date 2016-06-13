@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Reflection.Emit;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore;
+using ScrumBoard.Controllers.WebApi;
 
-namespace SMS.Models
+namespace ScrumBoard.Models
 {
-    public abstract class Entity : IEntity
+    public abstract class Entity
     {
         [NotMapped]
         public int? ClientId { get; set; }
@@ -26,28 +24,26 @@ namespace SMS.Models
         public DateTime UpdateDate { get; set; }
                 
 
-        public virtual Album Album { get; set; }
-        public int? AlbumId { get; set; }
 
         [NotMapped]
-        public string Type => GetType().Name;
+        public string Type => this.GetType().Name;
 
-        public List<Comment> Comments { get; set; } = new List<Comment>();
 
-        public virtual bool RemoveFromContext(SmsDbContext context)
+        public virtual bool RemoveFromContext(SbDbContext context)
         {
             if (Id == null || context.Entry(this).State == EntityState.Deleted)
                 return false;
             context.Remove(this);
-            Comments.ForEach(c => c.RemoveFromContext(context));
-            (Album ?? new Album() { Id = AlbumId })?.RemoveFromContext(context);
             return true;
         }
 
-        public virtual bool AddOrUpdate(SmsDbContext context)
+        public virtual bool AddOrUpdate(SbDbContext context)
         {
             if (ProcessOnSever == false)
+            {
+                context.Attach(this);
                 return false;
+            }
             if (Id == null)
             {
                 if (context.Entry(this).State == EntityState.Added)
@@ -64,8 +60,6 @@ namespace SMS.Models
                 UpdateDate = DateTime.Now;
                 context.Update(this);
             }
-            Album?.AddOrUpdate(context);
-            Comments.ForEach(c => c.AddOrUpdate(context));
             return true;
         }
 
