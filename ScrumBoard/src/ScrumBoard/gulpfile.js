@@ -75,7 +75,7 @@ gulp.task("min:lib:js",
             .pipe(debug())
             .pipe(sourcemaps.init())
             .pipe(ignore.exclude(["**/*.map"]))
-            .pipe(lec({eolc: 'LF', encoding:'utf8'}))
+            .pipe(lec({ eolc: 'LF', encoding: 'utf8' }).on("error", gulpUtil.log))
             .pipe(uglify().on("error", gulpUtil.log))
             .pipe(sourcemaps.write())
             .pipe(gulp.dest(function(file) {
