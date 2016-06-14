@@ -199,42 +199,42 @@ class MapViewModel {
 
 
     LoadData() {
-        ServerApi.Persons
+        ServerApi.Projects
             .Get()
             .done(d => {
                 for (let sEntity of d) {
-                    this.Persons.push(new ClientModel.Person().LoadFromServerEntity(sEntity));
+                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
                 }
-                this.PersonsLoaded = true;
+                this.ProjectsLoaded = true;
                 this.InitializeModel();
             });
     }
 
     InitializeModel() {
-        if (this.PersonsLoaded) {
+        if (this.ProjectsLoaded) {
             ko.applyBindings(mapViewModel);
             $("#loadingOverlay").remove();
         }
     }
 
-    GetPersonById(id: number): ClientModel.Person {
-        for (let entity of this.Persons()) {
+    GetProjectById(id: number): ClientModel.Project {
+        for (let entity of this.Projects()) {
             if (entity.Id() === id) return entity;
         }
         //throw "No Tack with id " + id + " found";
         return undefined;
     }
 
-    PersonsLoaded = false;
+    ProjectsLoaded = false;
 
-    Persons = ko.observableArray<ClientModel.Person>();
+    Projects = ko.observableArray<ClientModel.Project>();
 
-    TackHelper = new EditingHelper("editingTackModal", "deletingTackModal", () => new ClientModel.Person(), this.Persons);
+    //TackHelper = new EditingHelper("editingTackModal", "deletingTackModal", () => new ClientModel.Project(), this.Projects);
 }
 
-var leftSidebar = new Sidebar($("#leftSidebar"));
-var rightSidebar = new Sidebar($("#rightSidebar"));
-var bottomSidebar = new Sidebar($("#bottomSidebar"));
+//var leftSidebar = new Sidebar($("#leftSidebar"));
+//var rightSidebar = new Sidebar($("#rightSidebar"));
+//var bottomSidebar = new Sidebar($("#bottomSidebar"));
 
 var mapViewModel = new MapViewModel();
 
@@ -338,9 +338,9 @@ ko.bindingHandlers.daterange = {
 };
 
 
-(<any>window).Parsley.on("form:validate", form => {
-    if (form.submitEvent === undefined)
-        return false;
-});
+//(<any>window).Parsley.on("form:validate", form => {
+//    if (form.submitEvent === undefined)
+//        return false;
+//});
 
-(<any>window).Parsley.on("form:submit", form => false);
+//(<any>window).Parsley.on("form:submit", form => false);

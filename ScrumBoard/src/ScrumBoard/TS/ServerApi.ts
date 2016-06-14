@@ -130,11 +130,11 @@ class ServerApi {
     }
 
 
-    static Persons = new ServerApi("/api/People");
+    static Projects = new ServerApi("/api/Projects");
 
     static GetApi(type: ClientModel.Entity): ServerApi {
-        if (type instanceof ClientModel.Person)
-            return ServerApi.Persons;
+        if (type instanceof ClientModel.Project)
+            return ServerApi.Projects;
         throw ("No suitable Api found");
     }
 }

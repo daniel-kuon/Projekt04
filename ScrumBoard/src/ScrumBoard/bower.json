@@ -6,6 +6,10 @@
     "jquery": "2.2.0",
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
-    "moment": "^2.13.0"
+    "moment": "^2.13.0",
+    "knockout": "knockoutjs#^3.4.0"
+  },
+  "devDependencies": {
+    
   }
 }

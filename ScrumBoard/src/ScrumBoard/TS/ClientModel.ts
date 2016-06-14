@@ -12,8 +12,6 @@ module ClientModel {
             Entity.entityDb[this.ClientId.toString()] = this;
         }
 
-        AlbumId = ko.observable<number>();
-        CommentListId = ko.observable<number>();
         InsertDate = ko.observable<number>(Date as any);
         UpdateDate = ko.observable<number>(Date as any);
 
@@ -182,13 +180,12 @@ module ClientModel {
         abstract Context(): KnockoutObservableArray<this>;
     }
 
-    export class Person extends Entity {
-        LastName = ko.observable<string>();
-        FirstName = ko.observable<string>();
-        FullName = ko.computed(() => this.FirstName() + " " + this.LastName());
+    export class Project extends Entity {
+        Name = ko.observable<string>();
+        Description = ko.observable<string>();
 
         Context() {
-            return mapViewModel.Persons as any;
+            return mapViewModel.Projects as any;
         }
 
     }
