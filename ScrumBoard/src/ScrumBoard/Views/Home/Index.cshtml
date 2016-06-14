@@ -25,5 +25,56 @@
              <button value="Test" onclick="document.myform.submit()" />
         </form>
 
+        <modal static-backdrop no-keyboard id="deletingProjectModal" data-bind="with:ProjectHelper.Deleting">
+            <header>
+                <span data-bind="text: Name"></span>
+            </header>
+            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.ProjectHelper.Delete">Löschen</button>
+                <button b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal static-backdrop no-keyboard id="editingProjectModal" data-bind="with:ProjectHelper" size="Large">
+            <header data-bind="with:Editing">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Editing">
+                <form-group class="col-md-12">
+                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
+                </form-group>
+                <form-group class="col-md-6">
+                    <input type="number" step="any" data-bind="textInput:Description" b-label="Beschreibung" required />
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal static-backdrop no-keyboard id="detailProjectModal" data-bind="with:ProjectHelper" size="Large">
+            <header data-bind="with:Detail">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Detail">
+                <form-group class="col-md-12">
+                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
+                </form-group>
+                <form-group class="col-md-6">
+                    <input type="number" step="any" data-bind="textInput:Description" b-label="Beschreibung" required />
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+        <div data-bind="foreach:Projects">
+            <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: function(){Detail(this)}, text:Name"></button>
+        </div>
    </div>
 </div>

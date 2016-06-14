@@ -47,8 +47,8 @@ class EditingHelper<T extends ClientModel.Entity> {
         this.EditingModal = $(`#${editingModalId}`);
         this.DeletingModal = $(`#${deletingModalId}`);
 
-        if ($("form:first").length === 1)
-            this.Parsley = $("form:first", this.EditingModal).parsley((<any>window).ParsleyConfig);
+        //if ($("form:first").length === 1)
+        //    this.Parsley = $("form:first", this.EditingModal).parsley((<any>window).ParsleyConfig);
         this.EditingModal.on("show.bs.modal",
             () => {
                 this.EditingModalOpen = true;
@@ -229,7 +229,7 @@ class MapViewModel {
 
     Projects = ko.observableArray<ClientModel.Project>();
 
-    //TackHelper = new EditingHelper("editingTackModal", "deletingTackModal", () => new ClientModel.Project(), this.Projects);
+    ProjectHelper = new EditingHelper("editingProjectModal", "deletingProjectModal", () => new ClientModel.Project(), this.Projects, "detailProjectModal");
 }
 
 //var leftSidebar = new Sidebar($("#leftSidebar"));
