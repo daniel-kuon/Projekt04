@@ -34,6 +34,5 @@ namespace ScrumBoard.Controllers
         {
             return View();
         }
-
     }
 }
