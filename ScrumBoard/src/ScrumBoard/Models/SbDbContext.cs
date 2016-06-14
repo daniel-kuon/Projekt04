@@ -19,12 +19,14 @@ namespace ScrumBoard.Models
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<Column> Columns { get; set; }
+        public DbSet<Task> Tasks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Project>();
             modelBuilder.Entity<Column>();
+            modelBuilder.Entity<Task>();
         }
     }
 }
