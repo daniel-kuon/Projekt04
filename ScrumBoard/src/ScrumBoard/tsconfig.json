@@ -15,6 +15,7 @@
     "./TS/ServerApi.ts",
     "./TS/ServerModel.ts",
     "./TS/Sidebars.ts",
+    "./TS/Index.ts",
     "./wwwroot/lib/moment/moment.d.ts",
     "./typings/index.d.ts"
   ]

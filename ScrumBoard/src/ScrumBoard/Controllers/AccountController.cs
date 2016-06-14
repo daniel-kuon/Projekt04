@@ -436,6 +436,12 @@ namespace ScrumBoard.Controllers
             }
         }
 
+
+        public Boolean IsLoggedIn()
+        {
+            return (User.Identity.IsAuthenticated);
+        }
+
         #region Helpers
 
         private void AddErrors(IdentityResult result)

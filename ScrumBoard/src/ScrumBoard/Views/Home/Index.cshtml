@@ -2,10 +2,28 @@
     ViewData["Title"] = "Home Page";
 }
 
+@section scripts {<script src="~/js/TS/Index.js"></script>}
     
 <div class="row">
     <div class="col-md-9">
         <h2>Scrumboard</h2>
 
-    </div>
+        <table class="board">
+            <tr>
+                <th>TODO</th>
+                <th>IN PROGRESS</th>
+                <th>DONE</th>
+            </tr>
+            <tr>
+                <td>Test1</td>
+                <td>Test2</td>
+                <td>Test3</td>
+            </tr>
+        </table>
+
+        <form name="myform" asp-controller="Account" asp-action="IsLoggedIn" method="POST">
+             <button value="Test" onclick="document.myform.submit()" />
+        </form>
+
+   </div>
 </div>
