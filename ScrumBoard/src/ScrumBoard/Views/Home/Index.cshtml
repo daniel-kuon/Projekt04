@@ -8,16 +8,18 @@
     <div class="col-md-9">
         <h2>Scrumboard</h2>
 
-        <div id="board">
-            <div id="todo">
-                <div id="item1" draggable="true">
-                    <div id="item2" draggable="true">
-                    </div>
-                    <div id="inprogress"></div>
-                    <div id="done"></div>
-                </div>
-            </div>
-        </div>
+        <table class="board">
+            <tr>
+                <th>TODO</th>
+                <th>IN PROGRESS</th>
+                <th>DONE</th>
+            </tr>
+            <tr>
+                <td>Test1</td>
+                <td>Test2</td>
+                <td>Test3</td>
+            </tr>
+        </table>
 
         <form name="myform" asp-controller="Account" asp-action="IsLoggedIn" method="POST">
              <button value="Test" onclick="document.myform.submit()" />

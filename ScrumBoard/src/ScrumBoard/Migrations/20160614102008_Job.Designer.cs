@@ -8,8 +8,8 @@ using ScrumBoard.Models;
 namespace ScrumBoard.Migrations
 {
     [DbContext(typeof(SbDbContext))]
-    [Migration("20160614095423_Task")]
-    partial class Task
+    [Migration("20160614102008_Job")]
+    partial class Job
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -39,27 +39,7 @@ namespace ScrumBoard.Migrations
                     b.ToTable("Columns");
                 });
 
-            modelBuilder.Entity("ScrumBoard.Models.Project", b =>
-                {
-                    b.Property<int?>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("Deadline");
-
-                    b.Property<string>("Description");
-
-                    b.Property<DateTime>("InsertDate");
-
-                    b.Property<string>("Name");
-
-                    b.Property<DateTime>("UpdateDate");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Projects");
-                });
-
-            modelBuilder.Entity("ScrumBoard.Models.Task", b =>
+            modelBuilder.Entity("ScrumBoard.Models.Job", b =>
                 {
                     b.Property<int?>("Id")
                         .ValueGeneratedOnAdd();
@@ -81,6 +61,26 @@ namespace ScrumBoard.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("ScrumBoard.Models.Project", b =>
+                {
+                    b.Property<int?>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Deadline");
+
+                    b.Property<string>("Description");
+
+                    b.Property<DateTime>("InsertDate");
+
+                    b.Property<string>("Name");
+
+                    b.Property<DateTime>("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Projects");
+                });
+
             modelBuilder.Entity("ScrumBoard.Models.Column", b =>
                 {
                     b.HasOne("ScrumBoard.Models.Project")
@@ -89,7 +89,7 @@ namespace ScrumBoard.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("ScrumBoard.Models.Task", b =>
+            modelBuilder.Entity("ScrumBoard.Models.Job", b =>
                 {
                     b.HasOne("ScrumBoard.Models.Column")
                         .WithMany()

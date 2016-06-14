@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace ScrumBoard.Migrations
 {
-    public partial class Task : Migration
+    public partial class Job : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

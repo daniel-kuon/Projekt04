@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ScrumBoard.Models
 {
-    public class Task : Entity
+    public class Job : Entity
     {
         public string Name { get; set; }
         public string Description { get; set; }

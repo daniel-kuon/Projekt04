@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ScrumBoard.Models
 {
@@ -11,6 +10,6 @@ namespace ScrumBoard.Models
         public string Description { get; set; }
         public Project Project { get; set; }
         public int ProjectId { get; set; }
-        public List<Task> Tasks { get; set; }
+        public List<Job> Jobs { get; set; }
     }
 }
