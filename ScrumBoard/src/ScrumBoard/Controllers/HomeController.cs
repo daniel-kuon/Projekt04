@@ -15,14 +15,16 @@ namespace ScrumBoard.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Title"] = "About";
+            ViewData["Message"] = "Über unser Projekt";
 
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Title"] = "Contact";
+            ViewData["Message"] = "Über uns";
 
             return View();
         }
