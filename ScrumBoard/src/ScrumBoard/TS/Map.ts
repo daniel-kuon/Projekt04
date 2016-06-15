@@ -191,7 +191,7 @@ class EditingHelper<T extends ClientModel.Entity> {
 class MapViewModel {
     constructor() {
         this.LoadData();
-        $.get("/Account/LoggedIn").done((data) => this.IsLoggedIn(data));
+        //$.get("/Account/LoggedIn").done((data) => this.IsLoggedIn(data));
     }
 
     IsLoggedIn = ko.observable(false);
@@ -199,7 +199,6 @@ class MapViewModel {
 
 
     LoadData() {
-
         ServerApi.Context
             .Get()
             .done(d => {
@@ -208,50 +207,18 @@ class MapViewModel {
                 }
                 this.ProjectsLoaded = true;
                 for (let sEntity of d.Jobs) {
-                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
-                }
-                this.ProjectsLoaded = true;
-                for (let sEntity of d.Columns) {
-                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
-                }
-                this.ProjectsLoaded = true;
-                for (let sEntity of d.Categories) {
-                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
-                }
-                this.ProjectsLoaded = true;
-                this.InitializeModel();
-            });
-        ServerApi.Jobs
-            .Get()
-            .done(d => {
-                for (let sEntity of d) {
-                    new ClientModel.Job().LoadFromServerEntity(sEntity);
+                    this.Jobs.push(new ClientModel.Job().LoadFromServerEntity(sEntity));
                 }
                 this.JobsLoaded = true;
-                this.InitializeModel();
-            });
-        ServerApi.Categories
-            .Get()
-            .done(d => {
-                for (let sEntity of d) {
-                    new ClientModel.Category().LoadFromServerEntity(sEntity);
-                }
-                this.CategoriesLoaded = true;
-                this.InitializeModel();
-            });
-        ServerApi.Columns
-            .Get()
-            .done(d => {
-                for (let sEntity of d) {
-                    new ClientModel.Column().LoadFromServerEntity(sEntity);
+                for (let sEntity of d.Columns) {
+                    this.Columns.push(new ClientModel.Column().LoadFromServerEntity(sEntity));
                 }
                 this.ColumnsLoaded = true;
-                this.InitializeModel();
-            });
-        ServerApi.CategoryJobs
-            .Get()
-            .done(d => {
-                for (let sEntity of d) {
+                for (let sEntity of d.Categories) {
+                    this.Categories.push(new ClientModel.Category().LoadFromServerEntity(sEntity));
+                }
+                this.CategoriesLoaded = true;
+                for (let sEntity of d.CategoryJobs) {
                     this.CategoryJobs.push(sEntity);
                 }
                 this.CategoryJobsLoaded = true;

@@ -21,7 +21,7 @@ class ContextApi {
 
 }
 
-class AlbumImageApi {
+class CategoryJobApi {
 
     constructor(public baseUrl: string) {
 

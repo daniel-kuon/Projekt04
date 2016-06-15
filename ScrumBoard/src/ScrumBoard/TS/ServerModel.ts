@@ -35,7 +35,8 @@
         Jobs: Entity[];
         Projects: Entity[];
         Categories: Entity[];
-        Columns:Entity[];
+        Columns: Entity[];
+        CategoryJobs:CategoryJob[];
     }
 
 }

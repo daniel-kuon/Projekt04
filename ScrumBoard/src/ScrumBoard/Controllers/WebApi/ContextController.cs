@@ -7,15 +7,15 @@ namespace ScrumBoard.Controllers.WebApi
 {
     [Produces("application/json")]
     [Route("api/context")]
-    public abstract class ContextController : Controller
+    public class ContextController : Controller
     {
         protected SbDbContext Context;
 
-        protected ContextController(SbDbContext context)
+        public ContextController(SbDbContext context)
         {
             Context = context;
         }
-
+         
         [HttpGet("since/{ticks}")]
         public OfflineContext GetByTicks(long ticks)
         {
@@ -24,12 +24,15 @@ namespace ScrumBoard.Controllers.WebApi
             {
                 Columns = Context.Columns.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
                 Jobs = Context.Jobs.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
-                Projects = Context.Projects.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList()
+                Projects = Context.Projects.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
+                Categories = Context.Categories.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
+                CategoryJobs = Context.CategoryJobs.Where(e => e.InsertDate >= date).ToList(),
+                
             };
             var entities = context.Columns.Cast<Entity>().Union(context.Jobs).Union(context.Projects);
             Response.Headers.Add("ticks",
-                entities.Select(e => e.UpdateDate > e.InsertDate ? e.UpdateDate.Ticks : e.InsertDate.Ticks)
-                    .Max()
+                (entities.Any()?entities.Select(e => e.UpdateDate > e.InsertDate ? e.UpdateDate.Ticks : e.InsertDate.Ticks)
+                    .Max():0)
                     .ToString());
             return context;
         }

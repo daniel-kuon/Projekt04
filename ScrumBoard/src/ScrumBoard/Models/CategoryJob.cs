@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace ScrumBoard.Models
 {
@@ -10,7 +11,8 @@ namespace ScrumBoard.Models
         public int? CategoryId { get; set; }
         public Category Category { get; set; }
 
-
+        public DateTime InsertDate { get; set; }
+       
         public bool RemoveFromContext(SbDbContext context)
         {
             if (context.Entry(context).State == EntityState.Deleted)
@@ -22,7 +24,10 @@ namespace ScrumBoard.Models
         public bool AddOrUpdate(SbDbContext context)
         {
             if (JobId == null || CategoryId == null)
+            {
                 context.Add(this);
+                InsertDate = DateTime.Now;
+            }
             return true;
         }
     }
