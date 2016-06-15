@@ -8,9 +8,10 @@ using ScrumBoard.Models;
 namespace ScrumBoard.Migrations
 {
     [DbContext(typeof(SbDbContext))]
-    partial class SbDbContextModelSnapshot : ModelSnapshot
+    [Migration("20160615212636_m3")]
+    partial class m3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.0-rc2-20901")
@@ -105,7 +106,7 @@ namespace ScrumBoard.Migrations
                     b.Property<int?>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime?>("Deadline");
+                    b.Property<DateTime>("Deadline");
 
                     b.Property<string>("Description");
 

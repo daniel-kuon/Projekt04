@@ -8,6 +8,7 @@
 /// <reference path="js/ServerApi.js" />
 /// <reference path="js/ServerModel.js" />
 /// <reference path="js/Sidebars.js" />
+/// <reference path="js/site.js" />
 /// <reference path="js/ts/ClientModel.js" />
 /// <reference path="js/ts/db.js" />
 /// <reference path="js/ts/index.js" />

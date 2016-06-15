@@ -7,7 +7,6 @@
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
     "moment": "^2.13.0",
-    "knockout": "knockoutjs#^3.4.0",
     "arrive": "^2.3.1",
     "parsleyjs-bootstrap3": "*",
     "parsleyjs": "^2.3.15",
@@ -15,10 +14,14 @@
     "tinymce": "^4.3.13",
     "knockout-pickadate-tinymce": "knockout-tinymce-binding#^0.1.5",
     "knockout-moment": "^1.0.2",
-    "bootstrap-multiselect": "^0.9.13"
+    "bootstrap-multiselect": "^0.9.13",
+    "mjolnic-bootstrap-colorpicker": "bootstrap-colorpicker#^2.3.3",
+    "moment-datepicker": "^1.2.0",
+    "knockout": "^3.4.0"
   },
   "devDependencies": {},
   "resolutions": {
-    "knockout": "~3.1.0"
+    "moment": "^2.13.0",
+    "knockout": "^3.4.0"
   }
 }

@@ -8,6 +8,39 @@ interface JQuery {
     parsley: any; // Expand this bad boy later
 }
 
+(<any>window).tinymceOptions = {
+    default: {
+        theme: 'modern',
+        language_url: '/lib/tinymce-i18n/langs/de.js',
+        plugins: [
+            'advlist autolink lists link image charmap hr anchor pagebreak',
+            'searchreplace wordcount visualblocks visualchars code',
+            'insertdatetime media nonbreaking save table contextmenu directionality',
+            'emoticons template paste textcolor colorpicker textpattern imagetools'
+        ],
+        toolbar1:
+        'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+        toolbar2: 'media | forecolor backcolor emoticons',
+        image_advtab: true,
+        statusbar: false
+    }
+};
+
+(<any>window).ParsleyConfig = {
+    errorClass: 'has-error',
+    successClass: 'has-success',
+    showErrors: false,
+    classHandler: function (ParsleyField) {
+        return ParsleyField.$element.parents('.form-group');
+    },
+    errorsContainer: function (ParsleyField) {
+        return ParsleyField.$element.parents('.form-group');
+    },
+    errorsWrapper: '<span class="help-block">',
+    errorTemplate: '<div></div>',
+    excluded: 'input[type=button], input[type=submit], input[type=reset], input[type=hidden], button'
+};
+
 function renderTime(duration: number);
 function renderTime(startDate: Date, endDate: Date);
 function renderTime(startDate: Date | number, endDate?: Date) {
@@ -47,8 +80,8 @@ class EditingHelper<T extends ClientModel.Entity> {
         this.EditingModal = $(`#${editingModalId}`);
         this.DeletingModal = $(`#${deletingModalId}`);
 
-        //if ($("form:first").length === 1)
-        //    this.Parsley = $("form:first", this.EditingModal).parsley((<any>window).ParsleyConfig);
+        if ($("form:first").length === 1)
+            this.Parsley = $("form:first", this.EditingModal).parsley((<any>window).ParsleyConfig);
         this.EditingModal.on("show.bs.modal",
             () => {
                 this.EditingModalOpen = true;
@@ -323,9 +356,38 @@ class MapViewModel {
         return job;
     }
 
+    PersonsToSelect = ko.computed(() => {
+        return (<any[]>this.Categories().sort((p1,p2)=>p1.Name() > p2.Name()?1:-1)).concat([{ FullName: "Neue Person...", IsDummy: true }]);
+    });
 
+    ProcessPersonSelectOptions = (option: HTMLOptionElement, item) => {
+        if (item !== undefined && item !== null && item.IsDummy === true) {
+            option.value = "filled";
+            const context = ko.contextFor(option);
+            const select = $(option).parent();
+            if (select.data("new-change-handler") === undefined)
+                select.data("new-change-handler",
+                    select.change(() => {
+                        if ($(option).is(":selected")) {
+                            const person = new ClientModel.Category();
+                            this.CategoryHelper.Editing(person);
+                            const subscription = this.CategoryHelper.Editing.subscribe(() => {
+                                if (person.Id() !== undefined) {
+                                    this.Categories.push(person);
+                                    context.$data.Person(person);
+                                } else {
+                                    context.$data.Person(undefined);
+                                }
+                                subscription.dispose();
+                            });
+                        }
+                    }));
+        }
+    }
 
     SelectedProject = ko.observable<ClientModel.Project>();
+
+
 }
 
 //var leftSidebar = new Sidebar($("#leftSidebar"));
@@ -483,27 +545,51 @@ ko.bindingHandlers.daterange = {
     }
 };
 
-(<any>window).tinymceOptions = {
-    default: {
-        theme: 'modern',
-        language_url: '/lib/tinymce-i18n/langs/de.js',
-        plugins: [
-            'advlist autolink lists link image charmap hr anchor pagebreak',
-            'searchreplace wordcount visualblocks visualchars code',
-            'insertdatetime media nonbreaking save table contextmenu directionality',
-            'emoticons template paste textcolor colorpicker textpattern imagetools'
-        ],
-        toolbar1:
-        'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
-        toolbar2: 'media | forecolor backcolor emoticons',
-        image_advtab: true,
-        statusbar: false
+(<any>window).Parsley.on("form:validate", form => {
+    if (form.submitEvent === undefined)
+        return false;
+});
+
+(<any>window).Parsley.on("form:submit", form => false);
+
+
+interface KnockoutBindingHandlers {
+    color: KnockoutBindingHandler;
+
+}
+
+interface IColorpickerOptions {
+    format: string;
+    color: string;
+    container: string | JQuery;
+    component: string | JQuery;
+    input: string | JQuery;
+    horizontal: boolean;
+    inline: boolean;
+    sliders: Object;
+    slidersHorz: Object;
+    template: string;
+    align: string;
+    customClass: string;
+    colorSelectors: Object;
+}
+
+interface JQuery {
+    colorpicker:(options?:IColorpickerOptions)=>void;
+}
+
+ko.bindingHandlers.color = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+        const options:IColorpickerOptions = allBindingsAccessor().colorOptions || {};
+        $(element).colorpicker(options);
+        const widget = $(element).data("colorpicker");
+        //$(element).data("colorpicker").setColor(ko.utils.unwrapObservable(valueAccessor()));
+
+        ko.utils.registerEventHandler(element, "changeColor", function (event) {
+            valueAccessor()(widget.getValue());
+        });
+    },
+    update: function (element, valueAccessor) {
+        $(element).data("colorpicker").setValue(ko.utils.unwrapObservable(valueAccessor()));
     }
 };
-
-//(<any>window).Parsley.on("form:validate", form => {
-//    if (form.submitEvent === undefined)
-//        return false;
-//});
-
-//(<any>window).Parsley.on("form:submit", form => false);

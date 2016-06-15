@@ -27,6 +27,8 @@ namespace ScrumBoard.Models
             {
                 context.Add(this);
                 InsertDate = DateTime.Now;
+                Job?.AddOrUpdate(context);
+                Category?.AddOrUpdate(context);
             }
             return true;
         }
