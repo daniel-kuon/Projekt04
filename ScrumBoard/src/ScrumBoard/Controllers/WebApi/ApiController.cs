@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ using ScrumBoard.Models;
 namespace ScrumBoard.Controllers.WebApi
 {
     [Produces("application/json")]
-    public abstract  class ApiController<T> : Controller where T:Entity
+    public abstract class ApiController<T> : Controller where T : Entity
     {
         protected SbDbContext Context;
 
@@ -20,10 +21,22 @@ namespace ScrumBoard.Controllers.WebApi
             Context = context;
         }
 
+        [HttpGet("since/{ticks}")]
+        public IEnumerable<T> GetByTicks(long ticks)
+        {
+            var date = new DateTime(ticks);
+            var entities = Context.Set<T>().Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList();
+            Response.Headers.Add("ticks",
+                (entities.Count > 0
+                    ? entities.Select(e => e.UpdateDate > e.InsertDate ? e.UpdateDate.Ticks : e.InsertDate.Ticks).Max()
+                    : DateTime.Now.Ticks).ToString());
+            return entities;
+        }
+
         [HttpGet]
         public IEnumerable<T> Get()
         {
-            return Context.Set<T>();
+            return GetByTicks(0);
         }
 
         [HttpGet("{id}")]
@@ -34,7 +47,7 @@ namespace ScrumBoard.Controllers.WebApi
                 return BadRequest(ModelState);
             }
 
-            T Entity = await Context.Set<T>().SingleAsync(m => m.Id == id);
+            var Entity = await Context.Set<T>().SingleAsync(m => m.Id == id);
 
             if (Entity == null)
             {
@@ -70,15 +83,11 @@ namespace ScrumBoard.Controllers.WebApi
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
             return Ok(entity);
             //return new HttpStatusCodeResult(StatusCodes.Status204NoContent);
         }
-
 
 
         [Authorize]
@@ -101,10 +110,7 @@ namespace ScrumBoard.Controllers.WebApi
                 {
                     return new StatusCodeResult(StatusCodes.Status409Conflict);
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
             return Created(HttpContext.Request.GetEncodedUrl() + entity.Id, entity);
         }
@@ -141,7 +147,7 @@ namespace ScrumBoard.Controllers.WebApi
 
         private bool Exists(int? id)
         {
-            return id!=null && Context.Set<T>().Count(e => e.Id == id) > 0;
+            return id != null && Context.Set<T>().Count(e => e.Id == id) > 0;
         }
     }
 }

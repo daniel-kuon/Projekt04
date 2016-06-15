@@ -199,10 +199,23 @@ class MapViewModel {
 
 
     LoadData() {
-        ServerApi.Projects
+
+        ServerApi.Context
             .Get()
             .done(d => {
-                for (let sEntity of d) {
+                for (let sEntity of d.Projects) {
+                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
+                }
+                this.ProjectsLoaded = true;
+                for (let sEntity of d.Jobs) {
+                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
+                }
+                this.ProjectsLoaded = true;
+                for (let sEntity of d.Columns) {
+                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
+                }
+                this.ProjectsLoaded = true;
+                for (let sEntity of d.Categories) {
                     this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
                 }
                 this.ProjectsLoaded = true;

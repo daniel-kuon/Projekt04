@@ -10,6 +10,20 @@ enum HttpMethod {
     DELETE
 }
 
+
+
+class ContextApi {
+
+    constructor(public baseUrl: string) {
+
+    }
+
+    Get(): JQueryPromise<ServerModel.Context> {
+        return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET));
+    }
+
+}
+
 class AlbumImageApi {
 
     constructor(public baseUrl: string) {
@@ -129,6 +143,7 @@ class ServerApi {
         });
     }
 
+    static Context=new ContextApi("/api/context");
 
     static Projects = new ServerApi("/api/Projects");
 

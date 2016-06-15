@@ -31,4 +31,11 @@
         PersonId:number;
     }
 
+    export class Context {
+        Jobs: Entity[];
+        Projects: Entity[];
+        Categories: Entity[];
+        Columns:Entity[];
+    }
+
 }
