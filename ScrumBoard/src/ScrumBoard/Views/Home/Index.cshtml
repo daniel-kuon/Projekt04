@@ -2,30 +2,42 @@
     ViewData["Title"] = "Home Page";
 }
 
-@section scripts {<script src="~/js/TS/Index.js"></script>}
-    
+@*@section scripts {<script src="~/js/TS/Index.js"></script>}*@
+
 <div class="row">
-    <div class="col-md-9">
+    <div>
         <h2>Scrumboard</h2>
 
-        <table class="board">
-            <tr>
-                <th>TODO</th>
-                <th>IN PROGRESS</th>
-                <th>DONE</th>
-            </tr>
-            <tr>
-                <td>Test1</td>
-                <td>Test2</td>
-                <td>Test3</td>
-            </tr>
-        </table>
+        <div id="projectSelector" data-bind="if: !SelectedProject()">
+            <h3>Bitte wählen Sie ein Projekt aus oder legen ein neues an</h3>
+            <!-- ko foreach: Projects -->
+            <div><button data-bind="click: function () {mapViewModel.SelectedProject(this)}, text:Name"></button></div>
+            <!-- /ko -->
+            <button b-modal-target="editingProjectModal">Neues Project</button>
+        </div>
 
-        <form name="myform" asp-controller="Account" asp-action="IsLoggedIn" method="POST">
-             <button value="Test" onclick="document.myform.submit()" />
-        </form>
+        <div id="projectDisplay" data-bind="with: SelectedProject()">
+            <h3>Projekt: <span data-bind="text: Name"></span></h3>
+            <h5 data-bind="html:Description"></h5>
+            <div>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success">Spalte hinzufügen</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function () {mapViewModel.ProjectHelper.Editing(this)}">Projekt bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function () {mapViewModel.ProjectHelper.Deleting(this)}">Projekt löschen</button>
+            </div>
+            <table style="width: 100%;">
+                <thead>
+                    <tr data-bind="foreach: Columns">
+                        <th data-bind="text:Name"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-bind="foreach: Columns"></tr>
+                    <tr data-bind="foreach: Columns"></tr>
+                </tbody>
+            </table>
+        </div>
 
-        <modal static-backdrop no-keyboard id="deletingProjectModal" data-bind="with:ProjectHelper.Deleting">
+        <modal id="deletingProjectModal" data-bind="with:ProjectHelper.Deleting">
             <header>
                 <span data-bind="text: Name"></span>
             </header>
@@ -45,7 +57,7 @@
                     <input type="text" data-bind="textInput:Name" b-label="Name" required />
                 </form-group>
                 <form-group class="col-md-6">
-                    <input type="number" step="any" data-bind="textInput:Description" b-label="Beschreibung" required />
+                    <input data-bind="textInput:Description" b-label="Beschreibung" required />
                 </form-group>
                 <div class="clearfix"></div>
             </form>
@@ -55,26 +67,174 @@
             </footer>
         </modal>
 
-        <modal static-backdrop no-keyboard id="detailProjectModal" data-bind="with:ProjectHelper" size="Large">
+        <modal id="detailProjectModal" data-bind="with:ProjectHelper" size="Large">
             <header data-bind="with:Detail">
                 <span data-bind="text: Name"></span>
             </header>
             <form data-bind="with:Detail">
                 <form-group class="col-md-12">
-                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
+                    <static-control data-bind="text:Name" label="Name"></static-control>
                 </form-group>
                 <form-group class="col-md-6">
-                    <input type="number" step="any" data-bind="textInput:Description" b-label="Beschreibung" required />
+                    <static-control data-bind="text:Description" label="Beschreibung"></static-control>
                 </form-group>
                 <div class="clearfix"></div>
             </form>
             <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
+                <button b-dismiss-modal>Schließen</button>
+            </footer>
+        </modal>
+
+        <modal id="deletingColumnModal" data-bind="with:ColumnHelper.Deleting">
+            <header>
+                <span data-bind="text: Name"></span>
+            </header>
+            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.ColumnHelper.Delete">Löschen</button>
+                <button b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal static-backdrop no-keyboard id="editingColumnModal" data-bind="with:ColumnHelper" size="Large">
+            <header data-bind="with:Editing">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Editing">
+                <form-group class="col-md-12">
+                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
+                </form-group>
+                <form-group class="col-md-6">
+                    <input data-bind="textInput:Description" b-label="Beschreibung" required />
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
                 <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
             </footer>
         </modal>
-        <div data-bind="foreach:Projects">
-            <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: function(){Detail(this)}, text:Name"></button>
-        </div>
-   </div>
+
+        <modal id="detailColumnModal" data-bind="with:ColumnHelper" size="Large">
+            <header data-bind="with:Detail">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Detail">
+                <form-group class="col-md-12">
+                    <static-control data-bind="text:Name" label="Name"></static-control>
+                </form-group>
+                <form-group class="col-md-6">
+                    <static-control data-bind="text:Description" label="Beschreibung"></static-control>
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
+                <button b-dismiss-modal>Schließen</button>
+            </footer>
+        </modal>
+
+        <modal id="deletingJobModal" data-bind="with:JobHelper.Deleting">
+            <header>
+                <span data-bind="text: Name"></span>
+            </header>
+            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.JobHelper.Delete">Löschen</button>
+                <button b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal static-backdrop no-keyboard id="editingJobModal" data-bind="with:JobHelper" size="Large">
+            <header data-bind="with:Editing">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Editing">
+                <form-group class="col-md-12">
+                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
+                </form-group>
+                <form-group class="col-md-6">
+                    <input data-bind="textInput:Description" b-label="Beschreibung" required />
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal id="detailJobModal" data-bind="with:JobHelper" size="Large">
+            <header data-bind="with:Detail">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Detail">
+                <form-group class="col-md-12">
+                    <static-control data-bind="text:Name" label="Name"></static-control>
+                </form-group>
+                <form-group class="col-md-6">
+                    <static-control data-bind="text:Description" label="Beschreibung"></static-control>
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
+                <button b-dismiss-modal>Schließen</button>
+            </footer>
+        </modal>
+
+        <modal id="deletingCategoryModal" data-bind="with:CategoryHelper.Deleting">
+            <header>
+                <span data-bind="text: Name"></span>
+            </header>
+            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.CategoryHelper.Delete">Löschen</button>
+                <button b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal static-backdrop no-keyboard id="editingCategoryModal" data-bind="with:CategoryHelper" size="Large">
+            <header data-bind="with:Editing">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Editing">
+                <form-group class="col-md-12">
+                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
+                </form-group>
+                <form-group class="col-md-6">
+                    <input data-bind="textInput:Description" b-label="Beschreibung" required />
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
+            </footer>
+        </modal>
+
+        <modal id="detailCategoryModal" data-bind="with:CategoryHelper" size="Large">
+            <header data-bind="with:Detail">
+                <span data-bind="text: Name"></span>
+            </header>
+            <form data-bind="with:Detail">
+                <form-group class="col-md-12">
+                    <static-control data-bind="text:Name" label="Name"></static-control>
+                </form-group>
+                <form-group class="col-md-6">
+                    <static-control data-bind="text:Description" label="Beschreibung"></static-control>
+                </form-group>
+                <div class="clearfix"></div>
+            </form>
+            <footer>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
+                <button b-dismiss-modal>Schließen</button>
+            </footer>
+        </modal>
+    </div>
 </div>

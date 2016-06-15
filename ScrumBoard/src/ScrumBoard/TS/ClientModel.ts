@@ -30,13 +30,13 @@ module ClientModel {
             if (this.Id() === undefined)
                 return this.ServerApi.Create(this.ConvertToServerEntity())
                     .done(data => {
-                        this.savedStates=[];
+                        this.savedStates = [];
                         this.LoadFromServerEntity(data);
                         this.addToContext();
                     });
             return this.ServerApi.Update(this.ConvertToServerEntity())
                 .done((data) => {
-                    this.savedStates=[];
+                    this.savedStates = [];
                     this.LoadFromServerEntity(data);
                 });;
         }
@@ -55,9 +55,9 @@ module ClientModel {
         }
 
         private removeFromContext() {
-            this.Context().remove(this);
+            this.OnDeleted();
         }
-        
+
         LoadFromServerEntity(serverEntity: SEntity): this {
             if (serverEntity.ProcessOnServer === false)
                 return this;
@@ -79,6 +79,7 @@ module ClientModel {
                     }
                 }
             }
+            this.OnSaved();
             return this;
         }
 
@@ -96,19 +97,12 @@ module ClientModel {
                     if (val instanceof Array) {
                         const arr = new Array();
                         for (let elem of val as Entity[]) {
-                            if (elem.Id() === undefined ||
-                                isUpdate && prop.UpdateTransferMode === TransferMode.Include ||
-                                !isUpdate && prop.AddTransferMode === TransferMode.Include)
-                                arr.push(elem.ConvertToServerEntity());
+                            arr.push(elem.ConvertToServerEntity(true));
                         }
                         serverEntity[propName] = arr;
                     } else
                         serverEntity[propName] = val instanceof Entity
-                            ? (val.Id() === undefined ||
-                                isUpdate && prop.UpdateTransferMode === TransferMode.Include ||
-                                !isUpdate && prop.AddTransferMode === TransferMode.Include
-                                ? val.ConvertToServerEntity()
-                                : undefined)
+                            ? val.ConvertToServerEntity(true)
                             : val;
                 }
             }
@@ -119,9 +113,9 @@ module ClientModel {
             entity.Id(this.Id());
         }
 
-        private savedStates=new Array();
+        private savedStates = new Array();
 
-        SaveState= (alreadySavedEntities = new Array<Entity>()) => {
+        SaveState = (alreadySavedEntities = new Array<Entity>()) => {
             const savedState = new Object();
             if (alreadySavedEntities.indexOf(this) !== -1)
                 return;
@@ -155,7 +149,7 @@ module ClientModel {
             if (alreadyRevertedEntities.indexOf(this) !== -1)
                 return;
             alreadyRevertedEntities.push(this);
-            if (this.savedStates.length=== 0)
+            if (this.savedStates.length === 0)
                 if (ignoreError)
                     return;
                 else
@@ -178,14 +172,131 @@ module ClientModel {
         Id = ko.observable<number>();
 
         abstract Context(): KnockoutObservableArray<this>;
+
+        protected IsDirty = true;
+
+        public OnDeleted(): boolean {
+            if (this.Context().indexOf(this) === -1)
+                return false;
+            this.Context().remove(this);
+            return true;
+        }
+        public OnSaved(): boolean {
+            if (!this.IsDirty)
+                return false;
+            this.IsDirty = false;
+            if (this.Context().indexOf(this) === -1)
+                this.Context().push(this);
+            return true;
+        }
     }
 
     export class Project extends Entity {
         Name = ko.observable<string>();
         Description = ko.observable<string>();
+        Deadline = ko.observable<string>();
+        Columns = ko.observableArray<Column>();
 
         Context() {
             return mapViewModel.Projects as any;
+        }
+
+        public OnDeleted(): boolean {
+            if (!super.OnDeleted())
+                return false;
+            for (let col of this.Columns())
+                col.OnDeleted();
+            return true;
+        }
+        public OnSaved(): boolean {
+            if (!super.OnSaved())
+                return false;
+            return true;
+        }
+    }
+
+    export class Column extends Entity {
+        Name = ko.observable<string>();
+        Description = ko.observable<string>();
+        Color = ko.observable<string>();
+        Jobs = ko.observableArray<Job>();
+        Project = ko.observable<Project>();
+        ProjectId = ko.observable<number>();
+        IsDummyColumn = ko.observable<boolean>();
+
+
+        Context() {
+            return mapViewModel.Columns as any;
+        }
+
+        public OnDeleted(): boolean {
+            if (!super.OnDeleted())
+                return false;
+            this.Project().Columns.remove(this);
+            for (let job of this.Jobs())
+                job.OnDeleted();
+            return true;
+        }
+        public OnSaved(): boolean {
+            if (!super.OnSaved())
+                return false;
+            if (this.Project() === undefined) {
+                this.Project(mapViewModel.GetProjectById(this.ProjectId()));
+                if (this.Project() !== undefined)
+                    this.Project().Columns.push(this);
+            }
+            return true;
+        }
+
+    }
+
+    export class Job extends Entity {
+        Name = ko.observable<string>();
+        Description = ko.observable<string>();
+        Column = ko.observable<Column>();
+        ColumnId = ko.observable<number>();
+        Categories = ko.observableArray<Category>();
+
+        Context() {
+            return mapViewModel.Jobs as any;
+        }
+
+        public OnDeleted(): boolean {
+            if (!super.OnDeleted())
+                return false;
+            this.Column().Jobs.remove(this);
+            return true;
+        }
+        public OnSaved(): boolean {
+            if (!super.OnSaved())
+                return false;
+            if (this.Column() === undefined) {
+                this.Column(mapViewModel.GetColumnById(this.ColumnId()));
+                if (this.Column() !== undefined)
+                    this.Column().Jobs.push(this);
+            }
+            return true;
+        }
+
+    }
+
+    export class Category extends Entity {
+        Name = ko.observable<string>();
+        Color = ko.observable<string>();
+
+        Context() {
+            return mapViewModel.Categories as any;
+        }
+
+        public OnDeleted(): boolean {
+            if (!super.OnDeleted())
+                return false;
+            return true;
+        }
+        public OnSaved(): boolean {
+            if (!super.OnSaved())
+                return false;
+            return true;
         }
 
     }
