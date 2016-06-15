@@ -96,15 +96,18 @@ module ClientModel {
                 const val = prop();
                 if (val !== undefined) {
                     if (val instanceof Array) {
-                        //const arr = new Array();
-                        //for (let elem of val as Entity[]) {
-                        //    arr.push(elem.ConvertToServerEntity(true));
-                        //}
-                        //serverEntity[propName] = arr;
-                    } else
-                        serverEntity[propName] = val instanceof Entity
-                            ? undefined
-                            : val;
+                        const arr = new Array();
+                        for (let elem of val as Entity[]) {
+                            if (elem.Id() === undefined)
+                                arr.push(elem.ConvertToServerEntity());
+                        }
+                        serverEntity[propName] = arr;
+                    } else {
+                        if (val instanceof Entity)
+                            serverEntity[propName] = val.Id() === undefined ? val.ConvertToServerEntity() : undefined;
+                        else
+                            serverEntity[propName] = val;
+                    }
                 }
             }
             return serverEntity as any;
@@ -192,7 +195,7 @@ module ClientModel {
         }
 
         public OnSaving(): boolean {
-            return false;
+            return true;
         }
     }
 
@@ -211,12 +214,22 @@ module ClientModel {
                 return false;
             for (let col of this.Columns())
                 col.OnDeleted();
+            if (mapViewModel.SelectedProject() === this)
+                mapViewModel.SelectedProject(undefined);
             return true;
         }
         public OnSaved(): boolean {
             if (!super.OnSaved())
                 return false;
             return true;
+        }
+
+        GetDummyColum() {
+            for (let col of this.Columns()) {
+                if (col.IsDummyColumn())
+                    return col;
+            }
+            return undefined;
         }
     }
 
@@ -245,11 +258,10 @@ module ClientModel {
         public OnSaved(): boolean {
             if (!super.OnSaved())
                 return false;
-            if (this.Project() === undefined) {
+            if (this.Project() === undefined)
                 this.Project(mapViewModel.GetProjectById(this.ProjectId()));
-                if (this.Project() !== undefined)
-                    this.Project().Columns.push(this);
-            }
+            if (this.Project()!== undefined && this.Project().Columns().indexOf(this) === -1)
+                this.Project().Columns.push(this);
             return true;
         }
 
@@ -282,9 +294,9 @@ module ClientModel {
                 return false;
             if (this.Column() === undefined) {
                 this.Column(mapViewModel.GetColumnById(this.ColumnId()));
-                if (this.Column() !== undefined)
-                    this.Column().Jobs.push(this);
             }
+            if (this.Column()!==undefined && this.Column().Jobs.indexOf(this) === -1)
+                this.Column().Jobs.push(this);
             return true;
         }
 
@@ -292,7 +304,7 @@ module ClientModel {
             this.ColumnId(this.Column().Id());
             return false;
         }
-        
+
 
         ConvertToServerEntity(idOnly: boolean = false): SEntity {
             const serverEntity = super.ConvertToServerEntity(idOnly);

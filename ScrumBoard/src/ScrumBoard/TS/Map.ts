@@ -52,6 +52,9 @@ class EditingHelper<T extends ClientModel.Entity> {
         this.EditingModal.on("show.bs.modal",
             () => {
                 this.EditingModalOpen = true;
+                $('.popover.in').each(function () {
+                    $(this.previousSibling).popover('hide');
+                });
                 if (this.Editing() === undefined)
                     this.Editing(this.Factory());
             });
@@ -86,6 +89,9 @@ class EditingHelper<T extends ClientModel.Entity> {
         this.DeletingModal.on("show.bs.modal",
             () => {
                 this.DeletingModalOpen = true;
+                $('.popover.in').each(function () {
+                    $(this.previousSibling).popover('hide');
+                });
             });
 
         this.DeletingModal.on("hidden.bs.modal",
@@ -125,6 +131,9 @@ class EditingHelper<T extends ClientModel.Entity> {
                 this.DetailModal.on("show.bs.modal",
                     () => {
                         this.DetailModalOpen = true;
+                        $('.popover.in').each(function () {
+                            $(this.previousSibling).popover('hide');
+                        });
                     });
 
                 this.DetailModal.on("hide.bs.modal",
@@ -203,19 +212,19 @@ class MapViewModel {
             .Get()
             .done(d => {
                 for (let sEntity of d.Projects) {
-                    this.Projects.push(new ClientModel.Project().LoadFromServerEntity(sEntity));
+                    new ClientModel.Project().LoadFromServerEntity(sEntity);
                 }
                 this.ProjectsLoaded = true;
                 for (let sEntity of d.Jobs) {
-                    this.Jobs.push(new ClientModel.Job().LoadFromServerEntity(sEntity));
+                    new ClientModel.Job().LoadFromServerEntity(sEntity);
                 }
                 this.JobsLoaded = true;
                 for (let sEntity of d.Columns) {
-                    this.Columns.push(new ClientModel.Column().LoadFromServerEntity(sEntity));
+                    new ClientModel.Column().LoadFromServerEntity(sEntity);
                 }
                 this.ColumnsLoaded = true;
                 for (let sEntity of d.Categories) {
-                    this.Categories.push(new ClientModel.Category().LoadFromServerEntity(sEntity));
+                    new ClientModel.Category().LoadFromServerEntity(sEntity);
                 }
                 this.CategoriesLoaded = true;
                 for (let sEntity of d.CategoryJobs) {
@@ -289,11 +298,11 @@ class MapViewModel {
     Columns = ko.observableArray<ClientModel.Column>();
 
     CategoryHelper = new EditingHelper("editingCategoryModal", "deletingCategoryModal", () => new ClientModel.Category(), this.Categories, "detailCategoryModal");
-    JobHelper = new EditingHelper("editingJobModal", "deletingJobModal", (): ClientModel.Job => { throw "Cannot create Job without Column"; }, this.Jobs, "detailJobModal");
+    JobHelper = new EditingHelper("editingJobModal", "deletingJobModal", this.CreateJob, this.Jobs, "detailJobModal");
     ColumnHelper = new EditingHelper("editingColumnModal", "deletingColumnModal", this.CreateColumn, this.Columns, "detailColumnModal");
     ProjectHelper = new EditingHelper("editingProjectModal", "deletingProjectModal", this.CreateProject, this.Projects, "detailProjectModal");
 
-    private CreateProject():ClientModel.Project {
+    private CreateProject(): ClientModel.Project {
         const project = new ClientModel.Project();
         const dummyCol = new ClientModel.Column();
         dummyCol.IsDummyColumn(true);
@@ -308,7 +317,15 @@ class MapViewModel {
         return col;
     }
 
-    SelectedProject=ko.observable<ClientModel.Project>();
+    private CreateJob(): ClientModel.Job {
+        const job = new ClientModel.Job();
+        job.Column(mapViewModel.SelectedProject().GetDummyColum());
+        return job;
+    }
+
+
+
+    SelectedProject = ko.observable<ClientModel.Project>();
 }
 
 //var leftSidebar = new Sidebar($("#leftSidebar"));
@@ -351,6 +368,56 @@ $(".modal").on("shown.bs.modal", function () {
     $(".modal-backdrop").not("fv-modal-stack")
         .addClass("fv-modal-stack");
 
+});
+
+function GetPopoverTitle(elem): string {
+    const entity = ko.dataFor(elem);
+    if (entity instanceof ClientModel.Column) {
+        return entity.Description();
+    }
+    if (entity instanceof ClientModel.Job) {
+        return entity.Description();
+    }
+    return "";
+}
+
+function GetPopoverContent(elem): JQuery {
+    const entity = ko.dataFor(elem);
+    if (entity instanceof ClientModel.Column) {
+        const controls = $("#columnPopoverControlContainer").clone();
+        if (entity.IsDummyColumn())
+            $(".delete", controls).remove();
+        else
+            $(".delete", controls).click(() => { mapViewModel.ColumnHelper.Deleting(entity); });
+        $(".edit", controls).click(() => { mapViewModel.ColumnHelper.Editing(entity); });
+        return controls;
+    }
+    if (entity instanceof ClientModel.Job) {
+        const controls = $("#jobPopoverControlContainer").clone();
+        $(".delete", controls).click(() => { mapViewModel.JobHelper.Deleting(entity); });
+        $(".edit", controls).click(() => { mapViewModel.JobHelper.Editing(entity); });
+        return controls;
+    }
+    return undefined;
+}
+
+
+(<any>$(document)).arrive(".hasPopover", function () {
+    $(this)
+        .popover({
+            content: GetPopoverContent(this),
+            title: GetPopoverTitle(this),
+            html: true,
+            placement: "auto bottom"
+        });
+});
+
+$('html').on('mouseup', function (e) {
+    if (!$(e.target).closest('.popover').length) {
+        $('.popover').each(function () {
+            $(this.previousSibling).popover('hide');
+        });
+    }
 });
 
 interface KnockoutBindingHandlers {
@@ -416,6 +483,23 @@ ko.bindingHandlers.daterange = {
     }
 };
 
+(<any>window).tinymceOptions = {
+    default: {
+        theme: 'modern',
+        language_url: '/lib/tinymce-i18n/langs/de.js',
+        plugins: [
+            'advlist autolink lists link image charmap hr anchor pagebreak',
+            'searchreplace wordcount visualblocks visualchars code',
+            'insertdatetime media nonbreaking save table contextmenu directionality',
+            'emoticons template paste textcolor colorpicker textpattern imagetools'
+        ],
+        toolbar1:
+        'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+        toolbar2: 'media | forecolor backcolor emoticons',
+        image_advtab: true,
+        statusbar: false
+    }
+};
 
 //(<any>window).Parsley.on("form:validate", form => {
 //    if (form.submitEvent === undefined)

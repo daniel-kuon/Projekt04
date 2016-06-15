@@ -2,6 +2,7 @@
 /// <reference path="../gulpfile.js" />
 /// <reference path="js/ClientModel.js" />
 /// <reference path="js/Db.js" />
+/// <reference path="js/Index.js" />
 /// <reference path="js/KnockoutHelper.js" />
 /// <reference path="js/Map.js" />
 /// <reference path="js/ServerApi.js" />

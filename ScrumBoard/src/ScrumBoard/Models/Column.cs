@@ -12,7 +12,7 @@ namespace ScrumBoard.Models
         public string Description { get; set; }
         public Project Project { get; set; }
         public int ProjectId { get; set; }
-        public List<Job> Jobs { get; set; }
+        public List<Job> Jobs { get; set; }=new List<Job>();
         public bool IsDummyColumn { get; set; }
         public string Color { get; set; }
 
@@ -23,7 +23,7 @@ namespace ScrumBoard.Models
                 return false;
             if (!base.RemoveFromContext(context))
                 return false;
-            var dummyCol = context.Columns.First(c => c.ProjectId == ProjectId && IsDummyColumn);
+            var dummyCol = context.Columns.First(c => c.ProjectId == ProjectId && c.IsDummyColumn);
             foreach (Job job in context.Jobs.Where(j=>j.ColumnId==Id))
             {
                 job.Column = dummyCol;

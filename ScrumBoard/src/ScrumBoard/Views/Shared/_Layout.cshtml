@@ -14,6 +14,7 @@
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+        <link href="~/lib/tinymce/skins/lightgray/skin.min.css" rel="stylesheet" />
     </environment>
 </head>
 <body>
@@ -48,10 +49,18 @@
 
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/tinymce/tinymce.js"></script>
+        <script src="~/lib/tinymce/jquery.tinymce.js"></script>
+        <script src="~/lib/tinymce-i18n/langs/de.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/lib/knockout/dist/knockout.debug.js"></script>
+        <script src="~/lib/knockout-pickadate-tinymce/knockout-tinymce.js"></script>
        @* <script src="~/js/site.js" asp-append-version="true"></script>*@
         <script src="~/js/TS/Sidebars.js"></script>
+        <script src="~/lib/arrive/src/arrive.js"></script>
+        <script src="~/lib/parsleyjs/dist/parsley.js"></script>
+        <script src="~/lib/parsleyjs/dist/i18n/de.js"></script>
+        <script src="~/lib/parsleyjs/dist/i18n/de.extra.js"></script>
         <script src="~/js/TS/ServerModel.js"></script>
         <script src="~/js/TS/ClientModel.js"></script>
         <script src="~/js/TS/ServerApi.js"></script>

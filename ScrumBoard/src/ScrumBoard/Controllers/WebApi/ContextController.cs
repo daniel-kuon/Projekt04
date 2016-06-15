@@ -15,7 +15,7 @@ namespace ScrumBoard.Controllers.WebApi
         {
             Context = context;
         }
-         
+
         [HttpGet("since/{ticks}")]
         public OfflineContext GetByTicks(long ticks)
         {
@@ -27,12 +27,29 @@ namespace ScrumBoard.Controllers.WebApi
                 Projects = Context.Projects.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
                 Categories = Context.Categories.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
                 CategoryJobs = Context.CategoryJobs.Where(e => e.InsertDate >= date).ToList(),
-                
+
             };
+            context.Columns.ForEach(c =>
+            {
+                c.Project = null;
+                c.Jobs.Clear();
+            });
+            context.Projects.ForEach(p => { p.Columns.Clear(); });
+            context.Jobs.ForEach(j =>
+            {
+                j.Categories.Clear();
+                j.CategoriesJobs.Clear();
+                j.Column = null;
+            });
+            context.CategoryJobs.ForEach(cJ =>
+            {
+                cJ.Category = null;
+                cJ.Job = null;
+            });
             var entities = context.Columns.Cast<Entity>().Union(context.Jobs).Union(context.Projects);
             Response.Headers.Add("ticks",
-                (entities.Any()?entities.Select(e => e.UpdateDate > e.InsertDate ? e.UpdateDate.Ticks : e.InsertDate.Ticks)
-                    .Max():0)
+                (entities.Any() ? entities.Select(e => e.UpdateDate > e.InsertDate ? e.UpdateDate.Ticks : e.InsertDate.Ticks)
+                    .Max() : 0)
                     .ToString());
             return context;
         }

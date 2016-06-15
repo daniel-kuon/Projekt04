@@ -8,6 +8,6 @@ namespace ScrumBoard.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime Deadline { get; set; }
-        public List<Column> Columns { get; set; }
+        public List<Column> Columns { get; set; }=new List<Column>();
     }
 }
