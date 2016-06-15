@@ -324,7 +324,7 @@ class MapViewModel {
 
     private CreateColumn(): ClientModel.Column {
         const col = new ClientModel.Column();
-        col.Project(this.SelectedProject());
+        col.Project(mapViewModel.SelectedProject());
         return col;
     }
 

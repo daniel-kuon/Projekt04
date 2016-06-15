@@ -27,6 +27,7 @@ module ClientModel {
         };
 
         SaveToServer(): JQueryPromise<SEntity> {
+            this.OnSaving();
             if (this.Id() === undefined)
                 return this.ServerApi.Create(this.ConvertToServerEntity())
                     .done(data => {
@@ -95,14 +96,14 @@ module ClientModel {
                 const val = prop();
                 if (val !== undefined) {
                     if (val instanceof Array) {
-                        const arr = new Array();
-                        for (let elem of val as Entity[]) {
-                            arr.push(elem.ConvertToServerEntity(true));
-                        }
-                        serverEntity[propName] = arr;
+                        //const arr = new Array();
+                        //for (let elem of val as Entity[]) {
+                        //    arr.push(elem.ConvertToServerEntity(true));
+                        //}
+                        //serverEntity[propName] = arr;
                     } else
                         serverEntity[propName] = val instanceof Entity
-                            ? val.ConvertToServerEntity(true)
+                            ? undefined
                             : val;
                 }
             }
@@ -189,6 +190,10 @@ module ClientModel {
                 this.Context().push(this);
             return true;
         }
+
+        public OnSaving(): boolean {
+            return false;
+        }
     }
 
     export class Project extends Entity {
@@ -248,6 +253,11 @@ module ClientModel {
             return true;
         }
 
+        public OnSaving(): boolean {
+            this.ProjectId(this.Project().Id());
+            return false;
+        }
+
     }
 
     export class Job extends Entity {
@@ -278,6 +288,19 @@ module ClientModel {
             return true;
         }
 
+        public OnSaving(): boolean {
+            this.ColumnId(this.Column().Id());
+            return false;
+        }
+        
+
+        ConvertToServerEntity(idOnly: boolean = false): SEntity {
+            const serverEntity = super.ConvertToServerEntity(idOnly);
+            serverEntity["Categories"] = new Array<Category>();
+            for (let cat of this.Categories())
+                serverEntity["Categories"].push(cat.ConvertToServerEntity());
+            return serverEntity as any;
+        }
     }
 
     export class Category extends Entity {

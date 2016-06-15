@@ -20,7 +20,7 @@
             <h3>Projekt: <span data-bind="text: Name"></span></h3>
             <h5 data-bind="html:Description"></h5>
             <div>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success">Spalte hinzufügen</button>
+                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" b-modal-target="editingColumnModal">Spalte hinzufügen</button>
                 <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function () {mapViewModel.ProjectHelper.Editing(this)}">Projekt bearbeiten</button>
                 <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function () {mapViewModel.ProjectHelper.Deleting(this)}">Projekt löschen</button>
             </div>
