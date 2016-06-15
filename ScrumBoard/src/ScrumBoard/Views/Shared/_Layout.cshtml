@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    <div class="container body-content">
+    <div class="container body-content"> 
         @RenderBody()
         <hr />
         <footer>
@@ -47,12 +47,13 @@
     </div>
 
     <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/knockout/dist/knockout.debug.js"></script>
        @* <script src="~/js/site.js" asp-append-version="true"></script>*@
         <script src="~/js/TS/Sidebars.js"></script>
-        <script src="~/js/TS/ClientModel.js"></script>
         <script src="~/js/TS/ServerModel.js"></script>
+        <script src="~/js/TS/ClientModel.js"></script>
         <script src="~/js/TS/ServerApi.js"></script>
         <script src="~/js/TS/Map.js"></script>
     </environment>
