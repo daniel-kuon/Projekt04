@@ -1,7 +1,4 @@
 ﻿import Entity = ServerModel.Entity;
-import WaypointConnection = ServerModel.WaypointConnection;
-import WaypointTack = ServerModel.WaypointTack;
-import AlbumImage = ServerModel.AlbumImage;
 
 enum HttpMethod {
     POST,
@@ -30,64 +27,10 @@ class AlbumImageApi {
 
     }
 
-    Get(): JQueryPromise<AlbumImage[]> {
+    Get(): JQueryPromise<ServerModel.CategoryJob[]> {
         return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET));
     }
 
-}
-
-class CrewApi {
-
-    constructor(public baseUrl: string) {
-
-    }
-
-    Get(): JQueryPromise<ServerModel.Crew[]> {
-        return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET));
-    }
-
-}
-
-abstract class ConnectionApi<T> {
-
-    Get(): JQueryPromise<T[]> {
-        return ServerApi.CreateRequest<T[]>(ServerApi.BuildRequestBody("", HttpMethod.GET));
-    }
-
-    Connect(id1: number, id2: number): JQueryPromise<T> {
-        return ServerApi.CreateRequest<T>(ServerApi.BuildRequestBody(id1 + "/" + id2, HttpMethod.POST));
-    }
-
-    Disconnect(id1: number, id2: number): JQueryPromise<T> {
-        return ServerApi.CreateRequest<T>(ServerApi.BuildRequestBody(id1 + "/" + id2, HttpMethod.DELETE));
-    }
-
-    constructor(public baseUrl: string) {
-
-    }
-
-}
-
-class WaypointConnectionApi {
-
-    Get(): JQueryPromise<WaypointConnection[]> {
-        return ServerApi.CreateRequest<WaypointConnection[]>(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET));
-    }
-
-    Connect(id1: number, id2: number): JQueryPromise<WaypointConnection> {
-        return ServerApi.CreateRequest<WaypointConnection>(ServerApi.BuildRequestBody(this.baseUrl + "/" + id1 + "/" + id2, HttpMethod.POST));
-    }
-    Disconnect(id: number): JQueryPromise<WaypointConnection>;
-    Disconnect(id1: number, id2: number): JQueryPromise<WaypointConnection>;
-    Disconnect(id1: number, id2?: number): JQueryPromise<WaypointConnection> {
-        if (id2 !== undefined)
-            return ServerApi.CreateRequest<WaypointConnection>(ServerApi.BuildRequestBody(this.baseUrl + "/" + id1 + "/" + id2, HttpMethod.DELETE));
-        return ServerApi.CreateRequest<WaypointConnection>(ServerApi.BuildRequestBody(this.baseUrl + "/" + id1.toString(), HttpMethod.DELETE));
-    }
-
-    constructor(public baseUrl: string) {
-
-    }
 }
 
 class ServerApi {
@@ -146,10 +89,20 @@ class ServerApi {
     static Context=new ContextApi("/api/context");
 
     static Projects = new ServerApi("/api/Projects");
+    static Jobs = new ServerApi("/api/Jobs");
+    static Categories = new ServerApi("/api/Categories");
+    static CategoryJobs= new CategoryJobApi("/api/CategoryJobs");
+    static Columns = new ServerApi("/api/Columns");
 
     static GetApi(type: ClientModel.Entity): ServerApi {
         if (type instanceof ClientModel.Project)
             return ServerApi.Projects;
+        if (type instanceof ClientModel.Job)
+            return ServerApi.Jobs;
+        if (type instanceof ClientModel.Category)
+            return ServerApi.Categories;
+        if (type instanceof ClientModel.Column)
+            return ServerApi.Columns;
         throw ("No suitable Api found");
     }
 }

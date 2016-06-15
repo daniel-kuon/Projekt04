@@ -20,6 +20,8 @@ namespace ScrumBoard.Models
         public DbSet<Project> Projects { get; set; }
         public DbSet<Column> Columns { get; set; }
         public DbSet<Job> Jobs { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoryJob> CategoryJobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +29,8 @@ namespace ScrumBoard.Models
             modelBuilder.Entity<Project>();
             modelBuilder.Entity<Column>();
             modelBuilder.Entity<Job>();
+            modelBuilder.Entity<Category>();
+            modelBuilder.Entity<CategoryJob>().HasKey(cJ=> new {cJ.CategoryId, cJ.JobId});
         }
     }
 }

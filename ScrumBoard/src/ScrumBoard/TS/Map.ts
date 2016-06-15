@@ -221,10 +221,61 @@ class MapViewModel {
                 this.ProjectsLoaded = true;
                 this.InitializeModel();
             });
+        ServerApi.Jobs
+            .Get()
+            .done(d => {
+                for (let sEntity of d) {
+                    new ClientModel.Job().LoadFromServerEntity(sEntity);
+                }
+                this.JobsLoaded = true;
+                this.InitializeModel();
+            });
+        ServerApi.Categories
+            .Get()
+            .done(d => {
+                for (let sEntity of d) {
+                    new ClientModel.Category().LoadFromServerEntity(sEntity);
+                }
+                this.CategoriesLoaded = true;
+                this.InitializeModel();
+            });
+        ServerApi.Columns
+            .Get()
+            .done(d => {
+                for (let sEntity of d) {
+                    new ClientModel.Column().LoadFromServerEntity(sEntity);
+                }
+                this.ColumnsLoaded = true;
+                this.InitializeModel();
+            });
+        ServerApi.CategoryJobs
+            .Get()
+            .done(d => {
+                for (let sEntity of d) {
+                    this.CategoryJobs.push(sEntity);
+                }
+                this.CategoryJobsLoaded = true;
+                this.InitializeModel();
+            });
     }
 
     InitializeModel() {
-        if (this.ProjectsLoaded) {
+        if (this.ProjectsLoaded && this.CategoriesLoaded && this.JobsLoaded && this.CategoryJobsLoaded && this.ColumnsLoaded) {
+            for (let col of this.Columns()) {
+                if (col.Project() === undefined) {
+                    col.Project(this.GetProjectById(col.ProjectId()));
+                    col.Project().Columns.push(col);
+                }
+            }
+            for (let job of this.Jobs()) {
+                if (job.Column() === undefined) {
+                    job.Column(this.GetColumnById(job.ColumnId()));
+                    job.Column().Jobs.push(job);
+                }
+            }
+            for (let catJob of this.CategoryJobs()) {
+                this.GetJobById(catJob.JobId).Categories.push(this.GetCategoryById(catJob.CategoryId));
+            }
             ko.applyBindings(mapViewModel);
             $("#loadingOverlay").remove();
         }
@@ -234,15 +285,63 @@ class MapViewModel {
         for (let entity of this.Projects()) {
             if (entity.Id() === id) return entity;
         }
-        //throw "No Tack with id " + id + " found";
+        return undefined;
+    }
+
+    GetColumnById(id: number): ClientModel.Column {
+        for (let entity of this.Columns()) {
+            if (entity.Id() === id) return entity;
+        }
+        return undefined;
+    }
+
+    GetJobById(id: number): ClientModel.Job {
+        for (let entity of this.Jobs()) {
+            if (entity.Id() === id) return entity;
+        }
+        return undefined;
+    }
+
+    GetCategoryById(id: number): ClientModel.Category {
+        for (let entity of this.Categories()) {
+            if (entity.Id() === id) return entity;
+        }
         return undefined;
     }
 
     ProjectsLoaded = false;
+    CategoriesLoaded = false;
+    JobsLoaded = false;
+    CategoryJobsLoaded = false;
+    ColumnsLoaded = false;
 
     Projects = ko.observableArray<ClientModel.Project>();
+    Jobs = ko.observableArray<ClientModel.Job>();
+    Categories = ko.observableArray<ClientModel.Category>();
+    CategoryJobs = ko.observableArray<ServerModel.CategoryJob>();
+    Columns = ko.observableArray<ClientModel.Column>();
 
-    ProjectHelper = new EditingHelper("editingProjectModal", "deletingProjectModal", () => new ClientModel.Project(), this.Projects, "detailProjectModal");
+    CategoryHelper = new EditingHelper("editingCategoryModal", "deletingCategoryModal", () => new ClientModel.Category(), this.Categories, "detailCategoryModal");
+    JobHelper = new EditingHelper("editingJobModal", "deletingJobModal", (): ClientModel.Job => { throw "Cannot create Job without Column"; }, this.Jobs, "detailJobModal");
+    ColumnHelper = new EditingHelper("editingColumnModal", "deletingColumnModal", this.CreateColumn, this.Columns, "detailColumnModal");
+    ProjectHelper = new EditingHelper("editingProjectModal", "deletingProjectModal", this.CreateProject, this.Projects, "detailProjectModal");
+
+    private CreateProject():ClientModel.Project {
+        const project = new ClientModel.Project();
+        const dummyCol = new ClientModel.Column();
+        dummyCol.IsDummyColumn(true);
+        dummyCol.Name("Backlog");
+        project.Columns.push(dummyCol);
+        return project;
+    }
+
+    private CreateColumn(): ClientModel.Column {
+        const col = new ClientModel.Column();
+        col.Project(mapViewModel.SelectedProject());
+        return col;
+    }
+
+    SelectedProject=ko.observable<ClientModel.Project>();
 }
 
 //var leftSidebar = new Sidebar($("#leftSidebar"));

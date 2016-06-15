@@ -8,8 +8,8 @@ using ScrumBoard.Models;
 namespace ScrumBoard.Migrations
 {
     [DbContext(typeof(SbDbContext))]
-    [Migration("20160614102008_Job")]
-    partial class Job
+    [Migration("20160614214050_m1")]
+    partial class m1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -17,16 +17,54 @@ namespace ScrumBoard.Migrations
                 .HasAnnotation("ProductVersion", "1.0.0-rc2-20901")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("ScrumBoard.Models.Category", b =>
+                {
+                    b.Property<int?>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Color");
+
+                    b.Property<DateTime>("InsertDate");
+
+                    b.Property<string>("Name");
+
+                    b.Property<DateTime>("UpdateDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("ScrumBoard.Models.CategoryJob", b =>
+                {
+                    b.Property<int?>("CategoryId");
+
+                    b.Property<int?>("JobId");
+
+                    b.HasKey("CategoryId", "JobId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("JobId");
+
+                    b.ToTable("CategoryJobs");
+                });
+
             modelBuilder.Entity("ScrumBoard.Models.Column", b =>
                 {
                     b.Property<int?>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Color");
+
                     b.Property<string>("Description");
 
                     b.Property<DateTime>("InsertDate");
 
-                    b.Property<string>("Name");
+                    b.Property<bool>("IsDummyColumn");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<int>("ProjectId");
 
@@ -58,7 +96,7 @@ namespace ScrumBoard.Migrations
 
                     b.HasIndex("ColumnId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Jobs");
                 });
 
             modelBuilder.Entity("ScrumBoard.Models.Project", b =>
@@ -79,6 +117,19 @@ namespace ScrumBoard.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ScrumBoard.Models.CategoryJob", b =>
+                {
+                    b.HasOne("ScrumBoard.Models.Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ScrumBoard.Models.Job")
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ScrumBoard.Models.Column", b =>

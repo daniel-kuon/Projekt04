@@ -6,7 +6,7 @@ using ScrumBoard.Controllers.WebApi;
 
 namespace ScrumBoard.Models
 {
-    public abstract class Entity
+    public abstract class Entity:IEntity
     {
         [NotMapped]
         public int? ClientId { get; set; }

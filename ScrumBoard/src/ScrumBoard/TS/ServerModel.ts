@@ -13,11 +13,11 @@
         Waypoint2Id:number;
     }
     
-    export class AlbumImage {
-        ImageId: number;
-        AlbumId: number;
-        Album: Entity;
-        Image:Entity;
+    export class CategoryJob {
+        JobId: number;
+        CategoryId: number;
+        Category: Entity;
+        Job:Entity;
     }
 
     export class WaypointTack {
