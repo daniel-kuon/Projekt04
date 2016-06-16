@@ -247,18 +247,42 @@ class MapViewModel {
             .Get()
             .done(d => {
                 for (let sEntity of d.Projects) {
-                    new ClientModel.Project().LoadFromServerEntity(sEntity);
+                    let entity = this.GetProjectById(sEntity.Id);
+                    if (entity === undefined)
+                        new ClientModel.Project().LoadFromServerEntity(sEntity);
+                    else
+                        entity.LoadFromServerEntity(sEntity);
                 }
                 for (let sEntity of d.Jobs) {
-                    new ClientModel.Job().LoadFromServerEntity(sEntity);
+                    let entity = this.GetJobById(sEntity.Id);
+                    if (entity === undefined)
+                        new ClientModel.Job().LoadFromServerEntity(sEntity);
+                    else
+                        entity.LoadFromServerEntity(sEntity);
                 }
                 for (let sEntity of d.Columns) {
-                    new ClientModel.Column().LoadFromServerEntity(sEntity);
+                    let entity = this.GetColumnById(sEntity.Id);
+                    if (entity === undefined)
+                        new ClientModel.Column().LoadFromServerEntity(sEntity);
+                    else
+                        entity.LoadFromServerEntity(sEntity);
                 }
                 for (let sEntity of d.Categories) {
-                    new ClientModel.Category().LoadFromServerEntity(sEntity);
+                    let entity = this.GetCategoryById(sEntity.Id);
+                    if (entity === undefined)
+                        new ClientModel.Category().LoadFromServerEntity(sEntity);
+                    else
+                        entity.LoadFromServerEntity(sEntity);
+                }
+                for (let sEntity of d.ChatMessages) {
+                    let entity = this.GetChatMessageById(sEntity.Id);
+                    if (entity === undefined)
+                        new ClientModel.ChatMessage().LoadFromServerEntity(sEntity);
+                    else
+                        entity.LoadFromServerEntity(sEntity);
                 }
                 for (let sEntity of d.CategoryJobs) {
+                    if 
                     this.CategoryJobs.push(sEntity);
                 }
                 this.InitializeModel();
@@ -279,10 +303,20 @@ class MapViewModel {
             }
         }
         for (let catJob of this.CategoryJobs()) {
-            this.GetJobById(catJob.JobId).Categories.push(this.GetCategoryById(catJob.CategoryId));
+            const job = this.GetJobById(catJob.JobId);
+            const category = this.GetCategoryById(catJob.CategoryId);
+            if (job.Categories.indexOf(category) === -1)
+                job.Categories.push(category);
         }
         ko.applyBindings(mapViewModel);
         $("#loadingOverlay").remove();
+    }
+
+    GetChatMessageById(id: number): ClientModel.ChatMessage {
+        for (let entity of this.ChatMessages()) {
+            if (entity.Id() === id) return entity;
+        }
+        return undefined;
     }
 
     GetProjectById(id: number): ClientModel.Project {
@@ -318,6 +352,7 @@ class MapViewModel {
     Categories = ko.observableArray<ClientModel.Category>();
     CategoryJobs = ko.observableArray<ServerModel.CategoryJob>();
     Columns = ko.observableArray<ClientModel.Column>();
+    ChatMessages = ko.observableArray<ClientModel.ChatMessage>();
 
     CategoryHelper = new EditingHelper("editingCategoryModal", "deletingCategoryModal", () => new ClientModel.Category(), this.Categories, "detailCategoryModal");
     JobHelper = new EditingHelper("editingJobModal", "deletingJobModal", this.CreateJob, this.Jobs, "detailJobModal");
@@ -523,9 +558,9 @@ $("html").on("click", function (e: Event) {
 });
 
 function ClosePopovers() {
-        $(".hasPopover").each(function () {
-                $(this).popover("hide");
-        });
+    $(".hasPopover").each(function () {
+        $(this).popover("hide");
+    });
 }
 interface KnockoutBindingHandlers {
     daterange?: KnockoutBindingHandler;

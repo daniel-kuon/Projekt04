@@ -27,7 +27,7 @@ namespace ScrumBoard.Controllers.WebApi
                 Projects = Context.Projects.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
                 Categories = Context.Categories.Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList(),
                 CategoryJobs = Context.CategoryJobs.Where(e => e.InsertDate >= date).ToList(),
-
+                ChatMessages = Context.ChatMessages.Where(e => e.InsertDate >= date).ToList()
             };
             context.Columns.ForEach(c =>
             {
@@ -46,7 +46,8 @@ namespace ScrumBoard.Controllers.WebApi
                 cJ.Category = null;
                 cJ.Job = null;
             });
-            var entities = context.Columns.Cast<Entity>().Union(context.Jobs).Union(context.Projects);
+            context.ChatMessages.ForEach(cM=>cM.Project=null);
+            var entities = context.Columns.Cast<IEntity>().Union(context.Jobs).Union(context.Projects).Union(context.Categories).Union(context.CategoryJobs);
             Response.Headers.Add("ticks",
                 (entities.Any() ? entities.Select(e => e.UpdateDate > e.InsertDate ? e.UpdateDate.Ticks : e.InsertDate.Ticks)
                     .Max() : 0)

@@ -22,6 +22,7 @@ namespace ScrumBoard.Models
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoryJob> CategoryJobs { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +32,7 @@ namespace ScrumBoard.Models
             modelBuilder.Entity<Job>();
             modelBuilder.Entity<Category>();
             modelBuilder.Entity<CategoryJob>().HasKey(cJ=> new {cJ.CategoryId, cJ.JobId});
+            modelBuilder.Entity<ChatMessage>();
         }
     }
 }

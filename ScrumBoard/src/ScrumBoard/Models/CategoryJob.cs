@@ -12,6 +12,7 @@ namespace ScrumBoard.Models
         public Category Category { get; set; }
 
         public DateTime InsertDate { get; set; }
+        public DateTime UpdateDate { get; set; }
        
         public bool RemoveFromContext(SbDbContext context)
         {

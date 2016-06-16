@@ -341,7 +341,18 @@ module ClientModel {
                 return false;
             return true;
         }
+        s
+    }
 
+    export class ChatMessage extends  Entity {
+        Message = ko.observable<string>();
+        Project = ko.observable<Project>(mapViewModel.SelectedProject());
+        ProjectId = ko.observable<number>(mapViewModel.SelectedProject().Id());
+        Name = ko.observable<string>();
+
+        Context(): KnockoutObservableArray<this> {
+            return <any>mapViewModel.ChatMessages;
+        }
     }
 
 }

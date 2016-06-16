@@ -36,7 +36,8 @@
         Projects: Entity[];
         Categories: Entity[];
         Columns: Entity[];
-        CategoryJobs:CategoryJob[];
+        CategoryJobs: CategoryJob[];
+        ChatMessages:Entity[];
     }
 
 }
