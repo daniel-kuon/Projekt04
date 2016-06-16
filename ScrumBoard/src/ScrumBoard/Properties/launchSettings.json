@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:81",
+      "applicationUrl": "http://192.168.4.137:80",
       "sslPort": 0
     }
   },
@@ -18,7 +18,7 @@
     "ScrumBoard": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:81",
+      "launchUrl": "http://192.168.4.137:80",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

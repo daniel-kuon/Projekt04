@@ -21,7 +21,7 @@ namespace ScrumBoard.Models
         private void FixCategories(SbDbContext context)
         {
             CategoriesJobs = context.Set<CategoryJob>().Where(c => c.JobId == Id).ToList();
-            CategoriesJobs.AddRange(Categories.Where(i => CategoriesJobs.All(c => c.CategoryId != i.Id)).Select(i => new CategoryJob() { CategoryId = i.Id, Job = this, JobId = Id = Id, Category = i }));
+            CategoriesJobs.AddRange(Categories.Where(i => CategoriesJobs.All(c => c.CategoryId != i.Id)).Select(i => new CategoryJob() { CategoryId = i.Id, Job = Id!=null ?null : this, JobId = Id}));
             CategoriesJobs.Where(aI => Categories.All(i => aI.CategoryId != i.Id)).ToList().ForEach(aI => context.Remove(aI));
         }
 

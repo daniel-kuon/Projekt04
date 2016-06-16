@@ -80,6 +80,7 @@ module ClientModel {
                     }
                 }
             }
+            this.IsDirty = true;
             this.OnSaved();
             return this;
         }
@@ -205,6 +206,8 @@ module ClientModel {
         Deadline = ko.observable<string>();
         Columns = ko.observableArray<Column>();
 
+        OrderedColumns=ko.computed(()=> this.Columns().sort((c1, c2) => c1.Index() - c2.Index()));
+
         Context() {
             return mapViewModel.Projects as any;
         }
@@ -241,6 +244,7 @@ module ClientModel {
         Project = ko.observable<Project>();
         ProjectId = ko.observable<number>();
         IsDummyColumn = ko.observable<boolean>();
+        Index=ko.observable<number>();
 
 
         Context() {
@@ -260,7 +264,7 @@ module ClientModel {
                 return false;
             if (this.Project() === undefined)
                 this.Project(mapViewModel.GetProjectById(this.ProjectId()));
-            if (this.Project()!== undefined && this.Project().Columns().indexOf(this) === -1)
+            if (this.Project() !== undefined && this.Project().Columns().indexOf(this) === -1)
                 this.Project().Columns.push(this);
             return true;
         }
@@ -292,16 +296,20 @@ module ClientModel {
         public OnSaved(): boolean {
             if (!super.OnSaved())
                 return false;
-            if (this.Column() === undefined) {
+            if (this.Column() === undefined || this.Column().Id() !== this.ColumnId()) {
                 this.Column(mapViewModel.GetColumnById(this.ColumnId()));
             }
-            if (this.Column()!==undefined && this.Column().Jobs.indexOf(this) === -1)
+            if (this.Column() !== undefined && this.Column().Jobs.indexOf(this) === -1)
                 this.Column().Jobs.push(this);
             return true;
         }
 
         public OnSaving(): boolean {
-            this.ColumnId(this.Column().Id());
+            if (this.Column().Id() !== this.ColumnId()) {
+                if (this.ColumnId() !== undefined)
+                    mapViewModel.GetColumnById(this.ColumnId()).Jobs.remove(this);
+                this.ColumnId(this.Column().Id());
+            }
             return false;
         }
 

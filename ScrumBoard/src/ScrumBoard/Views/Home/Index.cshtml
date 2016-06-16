@@ -2,295 +2,235 @@
     ViewData["Title"] = "Home Page";
 }
 
-@*@section scripts {<script src="~/js/TS/Index.js"></script>}*@
+<div data-bind="if: false">
+    <h3>Seite wird geladen...</h3>
+</div>
 
-<div class="row">
-    <div>
-        <h2>Scrumboard</h2>
+<div id="projectSelector" style="display: none;" data-bind="visible: !SelectedProject()">
+    <h3>Bitte wählen Sie ein Projekt aus oder legen ein neues an</h3>
+    <!-- ko foreach: Projects -->
+    <div style="margin: 5px;">
+        <button data-bind="click: function () {mapViewModel.SelectedProject(this)}, text:Name"></button>
+    </div>
+    <!-- /ko -->
+    <button b-modal-target="editingProjectModal" b-context="BootstrapTagHelpers.Forms.ButtonContext.Success"><glyphicon icon="Plus"></glyphicon><span b-hidden-xs="false">  Neues Project</span></button>
+</div>
 
-        <div id="projectSelector" data-bind="if: !SelectedProject()">
-            <h3>Bitte wählen Sie ein Projekt aus oder legen ein neues an</h3>
-            <!-- ko foreach: Projects -->
-            <div>
-                <button data-bind="click: function () {mapViewModel.SelectedProject(this)}, text:Name"></button>
-            </div>
-            <!-- /ko -->
-            <button b-modal-target="editingProjectModal">Neues Project</button>
+<div id="projectDisplay" style="display: none;" data-bind="with: SelectedProject(), visible:SelectedProject()">
+    <button class="pull-right" data-bind="click: function () {mapViewModel.SelectedProject(undefined)}"><glyphicon icon="ArrowLeft"></glyphicon><span b-hidden-xs>  Zur Projektübersicht</span></button>
+    <h3>Projekt: <span data-bind="text: Name"></span> @*<small data-bind="if:Deadline">Deadline: <span data-bind="moment(Deadline()).format('LLL')"></span></small>*@</h3>
+    <h5 data-bind="html:Description"></h5>
+    <div style="margin: 5px;">
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" b-modal-target="editingJobModal" b-pull-right><glyphicon icon="Plus"></glyphicon><span b-hidden-xs>  Neuer Task</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" b-modal-target="editingColumnModal"><glyphicon icon="Plus"></glyphicon><span b-hidden-xs>  Spalte hinzufügen</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function () {mapViewModel.ProjectHelper.Editing(this)}"><glyphicon icon="Pencil"></glyphicon><span b-hidden-xs>  Projekt bearbeiten</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function () {mapViewModel.ProjectHelper.Deleting(this)}"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs>  Projekt löschen</span></button>
+    </div>
+    <table b-responsive b-responsive-table style="width: 100%; table-layout: auto;">
+        <thead>
+            <tr data-bind="foreach: OrderedColumns">
+                <th style="min-width: 300px;" class="hasPopover" data-bind="style:{'background-color':Color}">
+                    <span data-bind="text:Name"></span>
+                    <button-group b-pull-right>
+                        <button data-bind="click:$root.MoveLeft, disable: Index()==0"><glyphicon icon="ArrowLeft"></glyphicon></button>
+                        <button data-bind="click:$root.MoveRight, disable: Index()==$parent.Columns().length-1"><glyphicon icon="ArrowRight"></glyphicon></button>
+                    </button-group>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr data-bind="foreach: OrderedColumns">
+                <td data-bind="foreach: Jobs, style:{'background-color':Color}">
+                    <panel class="hasPopover">
+                        <heading>
+                            <span data-bind="text:Name"></span>
+                            <button-group b-pull-right>
+                                <button data-bind="click:$root.MoveLeft, disable: $parent.Index()==0"><glyphicon icon="ArrowLeft"></glyphicon></button>
+                                <button data-bind="click:$root.MoveRight, disable: $parent.Index()==$parents[1].Columns().length-1"><glyphicon icon="ArrowRight"></glyphicon></button>
+                            </button-group>
+                            <div class="clearfix"></div>
+                        </heading>
+                        <panel-body>
+                            <div data-bind="html:Description"></div>
+                            <!-- ko foreach: Categories -->
+                            <span class="label" data-bind="text:Name, style:{'background-color':Color}"></span>
+                            <!-- /ko -->
+                        </panel-body>
+                    </panel>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/html" id="singleCategorySelector">
+    <label data-bind="visible: Label, text: Label"></label>
+    <select required data-bind="options: $root.CategoriesToSelect, optionsText:'Name', value:Category, optionsCaption:'Kategorie wählen...', optionsAfterRender: $root.ProcessCategorySelectOptions"></select>
+</script>
+
+<script type="text/html" id="singleColumnSelector">
+    <label data-bind="visible: Label, text: Label"></label>
+    <select data-bind="options: $root.ColumnsToSelect, optionsText:'Name', value:Column, optionsCaption:'Spalte wählen...'"></select>
+</script>
+
+<script type="text/html" id="multipleCategorySelector">
+    <label data-bind="visible: Label, text: Label"></label>
+    <div class="multiselectContainer">
+        <div class="btn-group">
+            <select required multiple style="width: 100%" data-bind="options: $root.Categories, optionsText:'Name', selectedOptions:Categories, xoptionsCaption:'Kategorie wählen...', optionsAfterRender: $root.SetOptionKey,multiselect:{ optionsKey: 'data-id', observableKey: 'Id' }"></select>
+            <button type="button" title="Neue Kategorie" b-modal-target="editingCategoryModal" onclick="return false;"><glyphicon icon="Plus"></glyphicon></button>
         </div>
+    </div>
+</script>
 
-        <div id="projectDisplay" data-bind="with: SelectedProject()">
-            <button class="pull-right" data-bind="click: function () {mapViewModel.SelectedProject(undefined)}">Zur Projektübersicht</button>
-            <h3>Projekt: <span data-bind="text: Name"></span></h3>
-            <h5 data-bind="html:Description"></h5>
-            <div>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" b-modal-target="editingJobModal" b-pull-right>Neuer Task</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" b-modal-target="editingColumnModal">Spalte hinzufügen</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function () {mapViewModel.ProjectHelper.Editing(this)}">Projekt bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function () {mapViewModel.ProjectHelper.Deleting(this)}">Projekt löschen</button>
+<modal id="deletingProjectModal" data-bind="with:ProjectHelper.Deleting">
+    <header>
+        <span data-bind="text: Name"></span>
+    </header>
+    Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.ProjectHelper.Delete"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs>  Löschen</span></button>
+        <button b-dismiss-modal>Abbrechen</button>
+    </footer>
+</modal>
+
+<modal static-backdrop no-keyboard id="editingProjectModal" data-bind="with:ProjectHelper" size="Large">
+    <header data-bind="with:Editing">
+        <span data-bind="text: Name"></span>
+    </header>
+    <form data-bind="with:Editing">
+        <form-group>
+            <input type="text" data-bind="textInput:Name" b-label="Name" required />
+        </form-group>
+        <form-group>
+            <input data-bind="datepicker: Deadline, datepickerOptions: { format: 'DD.MM.YYYY' }" b-label="Deadline" required />
+        </form-group>
+        <form-group>
+            <textarea data-bind="tinymce:Description" b-label="Beschreibung"></textarea>
+        </form-group>
+        <div class="clearfix"></div>
+    </form>
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save"><glyphicon icon="FloppyDisk"></glyphicon><span b-hidden-xs="false">  Speichern</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
+
+<modal id="deletingColumnModal" data-bind="with:ColumnHelper.Deleting">
+    <header>
+        <span data-bind="text: Name"></span>
+    </header>
+    Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.ColumnHelper.Delete"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs="false">  Löschen</span></button>
+        <button b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
+
+<modal static-backdrop no-keyboard id="editingColumnModal" data-bind="with:ColumnHelper" size="Large">
+    <header data-bind="with:Editing">
+        <span data-bind="text: Name"></span>
+    </header>
+    <form data-bind="with:Editing">
+        <form-group>
+            <input type="text" data-bind="textInput:Name" b-label="Name" required />
+        </form-group>
+        <form-group>
+            <label>Farbe</label>
+            <div data-bind="color:Color" class="input-group colorpicker-component">
+                <span class="input-group-addon">Wählen:</span>
+                <input style="display: none;" type="text" readonly="readonly" class="form-control" />
+                <span class="input-group-addon"><i></i></span>
             </div>
-            <table style="width: 100%;">
-                <thead>
-                    <tr data-bind="foreach: Columns">
-                        <th class="hasPopover" data-bind="text:Name, style:{'background-color':Color}"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr data-bind="foreach: Columns">
-                        <td data-bind="foreach: Jobs, style:{'background-color':Color}">
-                            <panel class="hasPopover">
-                                <heading data-bind="text: Name"></heading>
-                                <panel-body>
-                                    <!-- ko html:Description --><!-- /ko -->
-                                    <!-- ko foreach: Categories -->
-                                    <span class="label" data-bind="text:Name, style:{'background-color':Color}"></span>
-                                    <!-- /ko -->
-                                </panel-body>
-                            </panel>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        </form-group>
+        <form-group>
+            <textarea data-bind="tinymce:Description" b-label="Beschreibung"></textarea>
+        </form-group>
+        <div class="clearfix"></div>
+    </form>
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save"><glyphicon icon="FloppyDisk"></glyphicon><span b-hidden-xs="false">  Speichern</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
 
-        <script type="text/html" id="singleCategorySelector">
-            <label data-bind="visible: Label, text: Label"></label>
-            <select required data-bind="options: $root.CategoriesToSelect, optionsText:'FullName', value:Category, optionsCaption:'Kategorie wählen...', optionsAfterRender: $root.ProcessCategorySelectOptions"></select>
-        </script>
+<modal id="deletingJobModal" data-bind="with:JobHelper.Deleting">
+    <header>
+        <span data-bind="text: Name"></span>
+    </header>
+    Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.JobHelper.Delete"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs="false">  Löschen</span></button>
+        <button b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
 
-        <script type="text/html" id="multipleCategorySelector">
-            <label data-bind="visible: Label, text: Label"></label>
-            <div class="multiselectContainer">
-                <div class="btn-group">
-                    <select required multiple style="width: 100%" data-bind="options: $root.Categories, optionsText:'Name', selectedOptions:Categories, xoptionsCaption:'Kategorie wählen...', optionsAfterRender: $root.SetOptionKey,multiselect:{ optionsKey: 'data-id', observableKey: 'Id' }"></select>
-                    <button type="button" title="Neue Kategorie" b-modal-target="editingCategoryModal" onclick="return false;"><glyphicon icon="Plus"></glyphicon></button>
-                </div>
+<modal static-backdrop no-keyboard id="editingJobModal" data-bind="with:JobHelper" size="Large">
+    <header data-bind="with:Editing">
+        <span data-bind="text: Name"></span>
+    </header>
+    <form data-bind="with:Editing">
+        <form-group>
+            <input type="text" data-bind="textInput:Name" b-label="Name" required />
+        </form-group>
+        <form-group data-bind="template:{name:'multipleCategorySelector', data:{Label:'Kategorien', Categories: $data.Categories}}">
+        </form-group>
+        <form-group data-bind="template:{name:'singleColumnSelector', data:{Label:'Spalte', Column: $data.Column}}">
+        </form-group>
+        <form-group>
+            <textarea data-bind="tinymce:Description" b-label="Beschreibung"></textarea>
+        </form-group>
+        <div class="clearfix"></div>
+    </form>
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save"><glyphicon icon="FloppyDisk"></glyphicon><span b-hidden-xs="false">  Speichern</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
+
+<modal id="deletingCategoryModal" data-bind="with:CategoryHelper.Deleting">
+    <header>
+        <span data-bind="text: Name"></span>
+    </header>
+    Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.CategoryHelper.Delete"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs="false">  Löschen</span></button>
+        <button b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
+
+<modal static-backdrop no-keyboard id="editingCategoryModal" data-bind="with:CategoryHelper" size="Large">
+    <header data-bind="with:Editing">
+        <span data-bind="text: Name"></span>
+    </header>
+    <form data-bind="with:Editing">
+        <form-group>
+            <input type="text" data-bind="textInput:Name" b-label="Name" required />
+        </form-group>
+        <form-group>
+            <label>Farbe</label>
+            <div data-bind="color:Color" class="input-group colorpicker-component">
+                <span class="input-group-addon">Wählen:</span>
+                <input style="display: none;" type="text" readonly="readonly" class="form-control" />
+                <span class="input-group-addon"><i></i></span>
             </div>
-        </script>
+        </form-group>
+        <div class="clearfix"></div>
+    </form>
+    <footer>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save"><glyphicon icon="FloppyDisk"></glyphicon><span b-hidden-xs="false">  Speichern</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal><glyphicon icon="Remove"></glyphicon><span b-hidden-xs="false">  Abbrechen</span></button>
+    </footer>
+</modal>
 
-        <modal id="deletingProjectModal" data-bind="with:ProjectHelper.Deleting">
-            <header>
-                <span data-bind="text: Name"></span>
-            </header>
-            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.ProjectHelper.Delete">Löschen</button>
-                <button b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
+<div style="display: none;">
+    <div id="columnPopoverControlContainer">
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" class="edit btn-block"><glyphicon icon="Pencil"></glyphicon><span b-hidden-xs="false">  Bearbeiten</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" class="delete btn-block"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs="false">  Löschen</span></button>
+    </div>
 
-        <modal static-backdrop no-keyboard id="editingProjectModal" data-bind="with:ProjectHelper" size="Large">
-            <header data-bind="with:Editing">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Editing">
-                <form-group>
-                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
-                </form-group>
-                <form-group>
-                    <input data-bind="datepicker: Deadline, datepickerOptions: { format: 'DD.MM.YYYY' }" b-label="Deadline" required />
-                </form-group>
-                <form-group>
-                    <textarea data-bind="tinymce:Description" b-label="Beschreibung"></textarea>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-        <modal id="detailProjectModal" data-bind="with:ProjectHelper" size="Large">
-            <header data-bind="with:Detail">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Detail">
-                <form-group>
-                    <static-control data-bind="text:Name" label="Name"></static-control>
-                </form-group>
-                <form-group>
-                    <static-control data-bind="html:Description" label="Beschreibung"></static-control>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
-                <button b-dismiss-modal>Schließen</button>
-            </footer>
-        </modal>
-
-        <modal id="deletingColumnModal" data-bind="with:ColumnHelper.Deleting">
-            <header>
-                <span data-bind="text: Name"></span>
-            </header>
-            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.ColumnHelper.Delete">Löschen</button>
-                <button b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-
-        <modal static-backdrop no-keyboard id="editingColumnModal" data-bind="with:ColumnHelper" size="Large">
-            <header data-bind="with:Editing">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Editing">
-                <form-group>
-                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
-                </form-group>
-                <form-group>
-                    <label>Farbe</label>
-                    <div data-bind="color:Color" class="input-group colorpicker-component">
-                        <span class="input-group-addon">Wählen:</span>
-                        <input style="display: none;" type="text" readonly="readonly" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                    </div>
-                </form-group>
-                <form-group>
-                    <textarea data-bind="tinymce:Description" b-label="Beschreibung"></textarea>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-
-        <modal id="detailColumnModal" data-bind="with:ColumnHelper" size="Large">
-            <header data-bind="with:Detail">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Detail">
-                <form-group>
-                    <static-control data-bind="text:Name" label="Name"></static-control>
-                </form-group>
-                <form-group>
-                    <static-control data-bind="html:Description" label="Beschreibung"></static-control>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
-                <button b-dismiss-modal>Schließen</button>
-            </footer>
-        </modal>
-
-        <modal id="deletingJobModal" data-bind="with:JobHelper.Deleting">
-            <header>
-                <span data-bind="text: Name"></span>
-            </header>
-            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.JobHelper.Delete">Löschen</button>
-                <button b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-
-        <modal static-backdrop no-keyboard id="editingJobModal" data-bind="with:JobHelper" size="Large">
-            <header data-bind="with:Editing">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Editing">
-                <form-group>
-                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
-                </form-group>
-                <form-group data-bind="template:{name:'multipleCategorySelector', data:{Label:'Kategorien', Categories: $data.Categories}}">
-                </form-group>
-                <form-group>
-                    <textarea data-bind="tinymce:Description" b-label="Beschreibung"></textarea>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-
-        <modal id="detailJobModal" data-bind="with:JobHelper" size="Large">
-            <header data-bind="with:Detail">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Detail">
-                <form-group>
-                    <static-control data-bind="text:Name" label="Name"></static-control>
-                </form-group>
-                <form-group>
-                    <static-control data-bind="html:Description" label="Beschreibung"></static-control>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
-                <button b-dismiss-modal>Schließen</button>
-            </footer>
-        </modal>
-
-        <modal id="deletingCategoryModal" data-bind="with:CategoryHelper.Deleting">
-            <header>
-                <span data-bind="text: Name"></span>
-            </header>
-            Soll das Projekt '<span data-bind="text: Name"></span>' wirklich gelöscht werden?
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: $root.CategoryHelper.Delete">Löschen</button>
-                <button b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-
-        <modal static-backdrop no-keyboard id="editingCategoryModal" data-bind="with:CategoryHelper" size="Large">
-            <header data-bind="with:Editing">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Editing">
-                <form-group>
-                    <input type="text" data-bind="textInput:Name" b-label="Name" required />
-                </form-group>
-                <form-group>
-                    <label>Farbe</label>
-                    <div data-bind="color:Color" class="input-group colorpicker-component">
-                        <span class="input-group-addon">Wählen:</span>
-                        <input style="display: none;" type="text" readonly="readonly" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                    </div>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" data-bind="click: Save">Speichern</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Warning" b-dismiss-modal>Abbrechen</button>
-            </footer>
-        </modal>
-
-        <modal id="detailCategoryModal" data-bind="with:CategoryHelper" size="Large">
-            <header data-bind="with:Detail">
-                <span data-bind="text: Name"></span>
-            </header>
-            <form data-bind="with:Detail">
-                <form-group>
-                    <static-control data-bind="text:Name" label="Name"></static-control>
-                </form-group>
-                <div class="clearfix"></div>
-            </form>
-            <footer>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" data-bind="click: function(){Editing(this.Detail())}">Bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" data-bind="click: function(){Delete(this.Detail())}">Löschen</button>
-                <button b-dismiss-modal>Schließen</button>
-            </footer>
-        </modal>
-
-        <div style="display: none;">
-            <div id="columnPopoverControlContainer">
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" class="edit btn-block">Bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" class="delete btn-block">Löschen</button>
-            </div>
-
-            <div id="jobPopoverControlContainer">
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" class="edit btn-block">Bearbeiten</button>
-                <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" class="delete btn-block">Löschen</button>
-            </div>
-        </div>
+    <div id="jobPopoverControlContainer">
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Primary" class="edit btn-block"><glyphicon icon="Pencil"></glyphicon><span b-hidden-xs="false">  Bearbeiten</span></button>
+        <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Danger" class="delete btn-block"><glyphicon icon="Trash"></glyphicon><span b-hidden-xs="false">  Löschen</span></button>
     </div>
 </div>

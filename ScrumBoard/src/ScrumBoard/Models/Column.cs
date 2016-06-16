@@ -15,8 +15,8 @@ namespace ScrumBoard.Models
         public List<Job> Jobs { get; set; }=new List<Job>();
         public bool IsDummyColumn { get; set; }
         public string Color { get; set; }
-
-
+        public int Index { get; set; }
+        
         public override bool RemoveFromContext(SbDbContext context)
         {
             if (IsDummyColumn)

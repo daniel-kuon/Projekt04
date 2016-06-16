@@ -14,9 +14,10 @@ namespace ScrumBoard.Models.AccountViewModels
 
         [Required]
         [DataType(DataType.Password)]
+        [Display(Name = "Passwort")]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Anmeldung merken")]
         public bool RememberMe { get; set; }
     }
 }

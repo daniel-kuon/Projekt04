@@ -10,35 +10,35 @@ interface JQuery {
 
 (<any>window).tinymceOptions = {
     default: {
-        theme: 'modern',
-        language_url: '/lib/tinymce-i18n/langs/de.js',
+        theme: "modern",
+        language_url: "/lib/tinymce-i18n/langs/de.js",
         plugins: [
-            'advlist autolink lists link image charmap hr anchor pagebreak',
-            'searchreplace wordcount visualblocks visualchars code',
-            'insertdatetime media nonbreaking save table contextmenu directionality',
-            'emoticons template paste textcolor colorpicker textpattern imagetools'
+            "advlist autolink lists link image charmap hr anchor pagebreak",
+            "searchreplace wordcount visualblocks visualchars code",
+            "insertdatetime media nonbreaking save table contextmenu directionality",
+            "emoticons template paste textcolor colorpicker textpattern imagetools"
         ],
         toolbar1:
-        'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
-        toolbar2: 'media | forecolor backcolor emoticons',
+        "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+        toolbar2: "media | forecolor backcolor emoticons",
         image_advtab: true,
         statusbar: false
     }
 };
 
 (<any>window).ParsleyConfig = {
-    errorClass: 'has-error',
-    successClass: 'has-success',
+    errorClass: "has-error",
+    successClass: "has-success",
     showErrors: false,
     classHandler: function (ParsleyField) {
-        return ParsleyField.$element.parents('.form-group');
+        return ParsleyField.$element.parents(".form-group");
     },
     errorsContainer: function (ParsleyField) {
-        return ParsleyField.$element.parents('.form-group');
+        return ParsleyField.$element.parents(".form-group");
     },
     errorsWrapper: '<span class="help-block">',
-    errorTemplate: '<div></div>',
-    excluded: 'input[type=button], input[type=submit], input[type=reset], input[type=hidden], button'
+    errorTemplate: "<div></div>",
+    excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], button"
 };
 
 function renderTime(duration: number);
@@ -84,9 +84,10 @@ class EditingHelper<T extends ClientModel.Entity> {
             this.Parsley = $("form:first", this.EditingModal).parsley((<any>window).ParsleyConfig);
         this.EditingModal.on("show.bs.modal",
             () => {
+                ClosePopovers();
                 this.EditingModalOpen = true;
-                $('.popover.in').each(function () {
-                    $(this.previousSibling).popover('hide');
+                $(".popover.in").each(function () {
+                    $(this.previousSibling).popover("hide");
                 });
                 if (this.Editing() === undefined)
                     this.Editing(this.Factory());
@@ -121,9 +122,10 @@ class EditingHelper<T extends ClientModel.Entity> {
 
         this.DeletingModal.on("show.bs.modal",
             () => {
+                ClosePopovers();
                 this.DeletingModalOpen = true;
-                $('.popover.in').each(function () {
-                    $(this.previousSibling).popover('hide');
+                $(".popover.in").each(function () {
+                    $(this.previousSibling).popover("hide");
                 });
             });
 
@@ -164,8 +166,8 @@ class EditingHelper<T extends ClientModel.Entity> {
                 this.DetailModal.on("show.bs.modal",
                     () => {
                         this.DetailModalOpen = true;
-                        $('.popover.in').each(function () {
-                            $(this.previousSibling).popover('hide');
+                        $(".popover.in").each(function () {
+                            $(this.previousSibling).popover("hide");
                         });
                     });
 
@@ -247,47 +249,40 @@ class MapViewModel {
                 for (let sEntity of d.Projects) {
                     new ClientModel.Project().LoadFromServerEntity(sEntity);
                 }
-                this.ProjectsLoaded = true;
                 for (let sEntity of d.Jobs) {
                     new ClientModel.Job().LoadFromServerEntity(sEntity);
                 }
-                this.JobsLoaded = true;
                 for (let sEntity of d.Columns) {
                     new ClientModel.Column().LoadFromServerEntity(sEntity);
                 }
-                this.ColumnsLoaded = true;
                 for (let sEntity of d.Categories) {
                     new ClientModel.Category().LoadFromServerEntity(sEntity);
                 }
-                this.CategoriesLoaded = true;
                 for (let sEntity of d.CategoryJobs) {
                     this.CategoryJobs.push(sEntity);
                 }
-                this.CategoryJobsLoaded = true;
                 this.InitializeModel();
             });
     }
 
     InitializeModel() {
-        if (this.ProjectsLoaded && this.CategoriesLoaded && this.JobsLoaded && this.CategoryJobsLoaded && this.ColumnsLoaded) {
-            for (let col of this.Columns()) {
-                if (col.Project() === undefined) {
-                    col.Project(this.GetProjectById(col.ProjectId()));
-                    col.Project().Columns.push(col);
-                }
+        for (let col of this.Columns()) {
+            if (col.Project() === undefined) {
+                col.Project(this.GetProjectById(col.ProjectId()));
+                col.Project().Columns.push(col);
             }
-            for (let job of this.Jobs()) {
-                if (job.Column() === undefined) {
-                    job.Column(this.GetColumnById(job.ColumnId()));
-                    job.Column().Jobs.push(job);
-                }
-            }
-            for (let catJob of this.CategoryJobs()) {
-                this.GetJobById(catJob.JobId).Categories.push(this.GetCategoryById(catJob.CategoryId));
-            }
-            ko.applyBindings(mapViewModel);
-            $("#loadingOverlay").remove();
         }
+        for (let job of this.Jobs()) {
+            if (job.Column() === undefined) {
+                job.Column(this.GetColumnById(job.ColumnId()));
+                job.Column().Jobs.push(job);
+            }
+        }
+        for (let catJob of this.CategoryJobs()) {
+            this.GetJobById(catJob.JobId).Categories.push(this.GetCategoryById(catJob.CategoryId));
+        }
+        ko.applyBindings(mapViewModel);
+        $("#loadingOverlay").remove();
     }
 
     GetProjectById(id: number): ClientModel.Project {
@@ -317,12 +312,6 @@ class MapViewModel {
         }
         return undefined;
     }
-
-    ProjectsLoaded = false;
-    CategoriesLoaded = false;
-    JobsLoaded = false;
-    CategoryJobsLoaded = false;
-    ColumnsLoaded = false;
 
     Projects = ko.observableArray<ClientModel.Project>();
     Jobs = ko.observableArray<ClientModel.Job>();
@@ -356,8 +345,21 @@ class MapViewModel {
         return job;
     }
 
+    ColumnsToSelect = ko.computed({
+        deferEvaluation: true,
+        read:
+        () => {
+            return (<any[]>this.SelectedProject().Columns().sort((p1, p2) => p1.Name() > p2.Name() ? 1 : -1));
+        }
+    });
+
+    SetOptionKey(option, item: Entity) {
+        ko.applyBindingsToNode(option, { attr: { "data-id": item.Id } }, item);
+        ko.applyBindingsToNode(option, { attr: { "value": item.Id } }, item);
+    };
+
     PersonsToSelect = ko.computed(() => {
-        return (<any[]>this.Categories().sort((p1,p2)=>p1.Name() > p2.Name()?1:-1)).concat([{ FullName: "Neue Person...", IsDummy: true }]);
+        return (<any[]>this.Categories().sort((p1, p2) => p1.Name() > p2.Name() ? 1 : -1)).concat([{ FullName: "Neue Person...", IsDummy: true }]);
     });
 
     ProcessPersonSelectOptions = (option: HTMLOptionElement, item) => {
@@ -385,14 +387,46 @@ class MapViewModel {
         }
     }
 
+    MoveLeft = (data: ClientModel.Entity, e: Event) => {
+        e.stopPropagation();
+        ClosePopovers();
+        if (data instanceof ClientModel.Column) {
+            const nextEntity = this.GetColumnByIndex(data.Index() - 1);
+            nextEntity.Index(nextEntity.Index() + 1);
+            data.Index(nextEntity.Index() - 1);
+            nextEntity.SaveToServer();
+            data.SaveToServer();
+            data.Project().Columns.notifySubscribers();
+        }
+        else if (data instanceof ClientModel.Job) {
+            data.Column(this.GetColumnByIndex(data.Column().Index() - 1));
+            data.SaveToServer();
+        }
+    }
+
+    MoveRight = (data: ClientModel.Entity, e: Event) => {
+        e.stopPropagation();
+        ClosePopovers();
+        if (data instanceof ClientModel.Column) {
+            const nextEntity = this.GetColumnByIndex(data.Index() + 1);
+            nextEntity.Index(nextEntity.Index() - 1);
+            data.Index(nextEntity.Index() + 1);
+            nextEntity.SaveToServer();
+            data.SaveToServer();
+            data.Project().Columns.notifySubscribers();
+        }
+        else if (data instanceof ClientModel.Job) {
+            data.Column(this.GetColumnByIndex(data.Column().Index() + 1));
+            data.SaveToServer();
+        }
+        return false;
+    }
+
+    GetColumnByIndex = (index: number) => this.SelectedProject().Columns()[index];
     SelectedProject = ko.observable<ClientModel.Project>();
 
 
 }
-
-//var leftSidebar = new Sidebar($("#leftSidebar"));
-//var rightSidebar = new Sidebar($("#rightSidebar"));
-//var bottomSidebar = new Sidebar($("#bottomSidebar"));
 
 var mapViewModel = new MapViewModel();
 
@@ -438,7 +472,7 @@ function GetPopoverTitle(elem): string {
         return entity.Description();
     }
     if (entity instanceof ClientModel.Job) {
-        return entity.Description();
+        return "";
     }
     return "";
 }
@@ -464,24 +498,35 @@ function GetPopoverContent(elem): JQuery {
 }
 
 
-(<any>$(document)).arrive(".hasPopover", function () {
-    $(this)
-        .popover({
-            content: GetPopoverContent(this),
-            title: GetPopoverTitle(this),
-            html: true,
-            placement: "auto bottom"
-        });
-});
+(<any>$(document)).arrive(".hasPopover",
+    function () {
+        if (!$(this).parents().hasClass("hasPopover")) {
+            $(this)
+                .popover({
+                    content: GetPopoverContent(this),
+                    title: GetPopoverTitle(this),
+                    html: true,
+                    placement: "auto bottom",
+                    container: "body"
+                });
+        }
+    });
 
-$('html').on('mouseup', function (e) {
-    if (!$(e.target).closest('.popover').length) {
-        $('.popover').each(function () {
-            $(this.previousSibling).popover('hide');
+
+$("html").on("click", function (e: Event) {
+    if (!$(e.target).closest(".popover").length) {
+        $(".hasPopover").each(function () {
+            if ($(this).is("button") || this !== e.target && this !== $(e.target).parents(".hasPopover")[0])
+                $(this).popover("hide");
         });
     }
 });
 
+function ClosePopovers() {
+        $(".hasPopover").each(function () {
+                $(this).popover("hide");
+        });
+}
 interface KnockoutBindingHandlers {
     daterange?: KnockoutBindingHandler;
 }
@@ -575,18 +620,19 @@ interface IColorpickerOptions {
 }
 
 interface JQuery {
-    colorpicker:(options?:IColorpickerOptions)=>void;
+    colorpicker: (options?: IColorpickerOptions) => void;
 }
 
 ko.bindingHandlers.color = {
     init: function (element, valueAccessor, allBindingsAccessor) {
-        const options:IColorpickerOptions = allBindingsAccessor().colorOptions || {};
+        const options: IColorpickerOptions = allBindingsAccessor().colorOptions || {};
         $(element).colorpicker(options);
         const widget = $(element).data("colorpicker");
         //$(element).data("colorpicker").setColor(ko.utils.unwrapObservable(valueAccessor()));
 
         ko.utils.registerEventHandler(element, "changeColor", function (event) {
-            valueAccessor()(widget.getValue());
+            let value = widget.getValue();
+            valueAccessor()(value.toUpperCase() === "#000000" ? undefined : value);
         });
     },
     update: function (element, valueAccessor) {

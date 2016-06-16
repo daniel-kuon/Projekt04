@@ -13,7 +13,7 @@ namespace ScrumBoard
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
-                .UseUrls("http://localhost:81")
+                .UseUrls("http://192.168.4.137:80")
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
