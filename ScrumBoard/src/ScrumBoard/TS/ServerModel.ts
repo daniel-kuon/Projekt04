@@ -38,6 +38,12 @@
         Columns: Entity[];
         CategoryJobs: CategoryJob[];
         ChatMessages:Entity[];
+        DeletedJobs: Entity[];
+        DeletedProjects: Entity[];
+        DeletedCategories: Entity[];
+        DeletedColumns: Entity[];
+        DeletedCategoryJobs: CategoryJob[];
+        DeletedChatMessages:Entity[];
     }
 
 }

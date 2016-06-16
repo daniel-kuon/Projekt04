@@ -9,6 +9,6 @@ namespace ScrumBoard.Models
 
         DateTime InsertDate { get; set; }
         DateTime UpdateDate { get; set; }
-        
+
     }
 }

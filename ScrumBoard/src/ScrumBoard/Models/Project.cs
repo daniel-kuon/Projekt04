@@ -9,6 +9,6 @@ namespace ScrumBoard.Models
         public string Description { get; set; }
         public DateTime? Deadline { get; set; }
         public List<Column> Columns { get; set; }=new List<Column>();
-        public List<ChatMessage> ChatMessages { get; set; }
+        public List<ChatMessage> ChatMessages { get; set; }= new List<ChatMessage>();
     }
 }

@@ -9,14 +9,23 @@ enum HttpMethod {
 
 
 
+
 class ContextApi {
 
     constructor(public baseUrl: string) {
 
     }
 
+    protected Ticks="0";
+
     Get(): JQueryPromise<ServerModel.Context> {
-        return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET));
+        return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET))
+            .done((data, textStatus, xhr: JQueryXHR) => this.Ticks = xhr.getResponseHeader("Ticks"));
+    }
+
+    GetUpdate(): JQueryPromise<ServerModel.Context> {
+        return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl + "/since/" + this.Ticks, HttpMethod.GET))
+            .done((data, textStatus, xhr: JQueryXHR) => this.Ticks = xhr.getResponseHeader("Ticks"));
     }
 
 }
@@ -28,6 +37,7 @@ class CategoryJobApi {
     }
 
     Get(): JQueryPromise<ServerModel.CategoryJob[]> {
+        this.Get().done();
         return ServerApi.CreateRequest(ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET));
     }
 
@@ -58,13 +68,22 @@ class ServerApi {
     Get(id: number): JQueryPromise<Entity>;
     Get(id?: number): any {
         if (id === undefined)
-            return ServerApi.CreateRequest<Entity[]>((ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET)));
+            return ServerApi.CreateRequest<ClientModel.Entity[]>((ServerApi.BuildRequestBody(this.baseUrl, HttpMethod.GET)));
         else
-            return ServerApi.CreateRequest<Entity>((ServerApi.BuildRequestBody(this.baseUrl + "/" + id.toString(), HttpMethod.GET)));
+            return ServerApi.CreateRequest<Entity>((ServerApi
+                .BuildRequestBody(this.baseUrl + "/" + id.toString(), HttpMethod.GET)))
+                .done((data, textStatus, xhr: JQueryXHR) => this.Ticks = xhr.getResponseHeader("Ticks"));;
     }
 
-    Delete(id: number): JQueryPromise<Entity> {
-        return ServerApi.CreateRequest<Entity>((ServerApi.BuildRequestBody(this.baseUrl + "/" + id.toString(), HttpMethod.DELETE)));
+    GetUpdate(): JQueryPromise<Entity[]> {
+        return ServerApi.CreateRequest<Entity[]>((ServerApi
+            .BuildRequestBody(this.baseUrl + "/since/" + this.Ticks, HttpMethod.GET)))
+            .done((data, textStatus, xhr: JQueryXHR) => this.Ticks = xhr.getResponseHeader("Ticks"));
+    }
+
+    Delete(id: number): JQueryPromise<ServerModel.Entity> {
+        return ServerApi.CreateRequest<ServerModel.Entity>((ServerApi
+            .BuildRequestBody(this.baseUrl + "/" + id.toString(), HttpMethod.DELETE)));
     }
 
     Create(entity: Entity): JQueryPromise<Entity> {
@@ -72,27 +91,33 @@ class ServerApi {
     }
 
     Update(entity: Entity): JQueryPromise<Entity> {
-        return ServerApi.CreateRequest<Entity>(ServerApi.BuildRequestBody(this.baseUrl + "/" + entity.Id.toString(), HttpMethod.PUT, entity));
+        return ServerApi.CreateRequest<Entity>(ServerApi
+            .BuildRequestBody(this.baseUrl + "/" + entity.Id.toString(), HttpMethod.PUT, entity));
     }
 
     static CreateRequest<T>(body: JQueryAjaxSettings): JQueryPromise<T> {
         ServerApi.conntectionCount(ServerApi.conntectionCount() + 1);
-        return $.ajax(body).fail(d => {
-            //alert(d);
-            alert("Es gab ein Fehler beim Verarbeiten der Daten auf dem Server. Bitte überprüfe deine Eingaben und versuche er erneut.");
-            console.log(d);
-        }).always(() => {
-            ServerApi.conntectionCount(ServerApi.conntectionCount() - 1);
-        });
+        return $.ajax(body)
+            .fail(d => {
+                //alert(d);
+                alert("Es gab ein Fehler beim Verarbeiten der Daten auf dem Server. Bitte überprüfe deine Eingaben und versuche er erneut.");
+                console.log(d);
+            })
+            .always(() => {
+                ServerApi.conntectionCount(ServerApi.conntectionCount() - 1);
+            });
     }
 
-    static Context=new ContextApi("/api/context");
+    protected Ticks = "0";
+
+    static Context = new ContextApi("/api/context");
 
     static Projects = new ServerApi("/api/Projects");
     static Jobs = new ServerApi("/api/Jobs");
     static Categories = new ServerApi("/api/Categories");
-    static CategoryJobs= new CategoryJobApi("/api/CategoryJobs");
+    static CategoryJobs = new CategoryJobApi("/api/CategoryJobs");
     static Columns = new ServerApi("/api/Columns");
+    static ChatMessages = new ServerApi("/api/chat");
 
     static GetApi(type: ClientModel.Entity): ServerApi {
         if (type instanceof ClientModel.Project)
@@ -103,6 +128,8 @@ class ServerApi {
             return ServerApi.Categories;
         if (type instanceof ClientModel.Column)
             return ServerApi.Columns;
+        if (type instanceof ClientModel.ChatMessage)
+            return ServerApi.ChatMessages;
         throw ("No suitable Api found");
     }
 }

@@ -22,7 +22,7 @@ namespace ScrumBoard.Controllers.WebApi
         }
 
         [HttpGet("since/{ticks}")]
-        public IEnumerable<T> GetByTicks(long ticks)
+        public virtual IEnumerable<T> GetByTicks(long ticks)
         {
             var date = new DateTime(ticks);
             var entities = Context.Set<T>().Where(e => e.InsertDate >= date || e.UpdateDate >= date).ToList();
@@ -34,13 +34,13 @@ namespace ScrumBoard.Controllers.WebApi
         }
 
         [HttpGet]
-        public IEnumerable<T> Get()
+        public virtual IEnumerable<T> Get()
         {
             return GetByTicks(0);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        public virtual async Task<IActionResult> Get([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +59,7 @@ namespace ScrumBoard.Controllers.WebApi
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] T entity)
+        public virtual async Task<IActionResult> Put([FromRoute] int id, [FromBody] T entity)
         {
             if (!ModelState.IsValid)
             {
@@ -92,7 +92,7 @@ namespace ScrumBoard.Controllers.WebApi
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] T entity)
+        public virtual async Task<IActionResult> Post([FromBody] T entity)
         {
             if (!ModelState.IsValid)
             {
@@ -117,7 +117,7 @@ namespace ScrumBoard.Controllers.WebApi
 
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        public virtual async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {

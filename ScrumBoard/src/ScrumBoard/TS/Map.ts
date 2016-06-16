@@ -240,12 +240,44 @@ class MapViewModel {
 
     IsLoggedIn = ko.observable(false);
 
+    LastDataUpdate = 0;
 
-
-    LoadData() {
+    LoadData = () => {
         ServerApi.Context
-            .Get()
+            .GetUpdate()
             .done(d => {
+                for (let sEntity of d.DeletedProjects) {
+                    const entity = this.GetProjectById(sEntity.Id);
+                    if (entity !== undefined)
+                        entity.OnDeleted();
+                }
+                for (let sEntity of d.DeletedJobs) {
+                    const entity = this.GetProjectById(sEntity.Id);
+                    if (entity !== undefined)
+                        entity.OnDeleted();
+                }
+                for (let sEntity of d.DeletedColumns) {
+                   const entity = this.GetProjectById(sEntity.Id);
+                    if (entity !== undefined)
+                        entity.OnDeleted();
+                }
+                for (let sEntity of d.DeletedCategories) {
+                    const entity = this.GetProjectById(sEntity.Id);
+                    if (entity !== undefined)
+                        entity.OnDeleted();
+                }
+                for (let sEntity of d.DeletedChatMessages) {
+                    const entity = this.GetProjectById(sEntity.Id);
+                    if (entity !== undefined)
+                        entity.OnDeleted();
+                }
+                for (let sEntity of d.DeletedCategoryJobs) {
+                    const job = this.GetJobById(sEntity.JobId);
+                    if (job !== undefined)
+                        job.Categories.remove(this.GetCategoryById(sEntity.CategoryId));
+                }
+
+
                 for (let sEntity of d.Projects) {
                     let entity = this.GetProjectById(sEntity.Id);
                     if (entity === undefined)
@@ -282,14 +314,13 @@ class MapViewModel {
                         entity.LoadFromServerEntity(sEntity);
                 }
                 for (let sEntity of d.CategoryJobs) {
-                    if 
                     this.CategoryJobs.push(sEntity);
                 }
                 this.InitializeModel();
             });
     }
 
-    InitializeModel() {
+    InitializeModel = () => {
         for (let col of this.Columns()) {
             if (col.Project() === undefined) {
                 col.Project(this.GetProjectById(col.ProjectId()));
@@ -308,9 +339,16 @@ class MapViewModel {
             if (job.Categories.indexOf(category) === -1)
                 job.Categories.push(category);
         }
-        ko.applyBindings(mapViewModel);
-        $("#loadingOverlay").remove();
+        this.CategoryJobs.removeAll();
+        if (!this.KoInitialized)
+            ko.applyBindings(mapViewModel);
+        this.KoInitialized = true;
+        window.setTimeout(mapViewModel.LoadData, 1000);
     }
+
+    IsLoadingData = false;
+
+    KoInitialized = false;
 
     GetChatMessageById(id: number): ClientModel.ChatMessage {
         for (let entity of this.ChatMessages()) {
@@ -371,6 +409,7 @@ class MapViewModel {
     private CreateColumn(): ClientModel.Column {
         const col = new ClientModel.Column();
         col.Project(mapViewModel.SelectedProject());
+        col.Index(col.Project().Columns().length);
         return col;
     }
 
@@ -384,6 +423,8 @@ class MapViewModel {
         deferEvaluation: true,
         read:
         () => {
+            if (this.SelectedProject() === undefined)
+                return [];
             return (<any[]>this.SelectedProject().Columns().sort((p1, p2) => p1.Name() > p2.Name() ? 1 : -1));
         }
     });
@@ -434,6 +475,7 @@ class MapViewModel {
             data.Project().Columns.notifySubscribers();
         }
         else if (data instanceof ClientModel.Job) {
+            data.Column().Jobs.remove(data);
             data.Column(this.GetColumnByIndex(data.Column().Index() - 1));
             data.SaveToServer();
         }
@@ -460,7 +502,12 @@ class MapViewModel {
     GetColumnByIndex = (index: number) => this.SelectedProject().Columns()[index];
     SelectedProject = ko.observable<ClientModel.Project>();
 
+    DummyMessage = ko.observable(new ClientModel.ChatMessage());
 
+    SendMessage = () => {
+        this.DummyMessage().SaveToServer();
+        this.DummyMessage(new ClientModel.ChatMessage());
+    }
 }
 
 var mapViewModel = new MapViewModel();

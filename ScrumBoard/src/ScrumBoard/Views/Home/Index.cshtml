@@ -2,6 +2,14 @@
     ViewData["Title"] = "Home Page";
 }
 
+@section head{
+    <style type="text/css">
+        #chat .panel-body :last-child {
+            display: none;
+        }
+    </style>
+}
+
 <div data-bind="if: false">
     <h3>Seite wird geladen...</h3>
 </div>
@@ -18,7 +26,8 @@
 
 <div id="projectDisplay" style="display: none;" data-bind="with: SelectedProject(), visible:SelectedProject()">
     <button class="pull-right" data-bind="click: function () {mapViewModel.SelectedProject(undefined)}"><glyphicon icon="ArrowLeft"></glyphicon><span b-hidden-xs>  Zur Projektübersicht</span></button>
-    <h3>Projekt: <span data-bind="text: Name"></span> @*<small data-bind="if:Deadline">Deadline: <span data-bind="moment(Deadline()).format('LLL')"></span></small>*@</h3>
+    <h3>Projekt: <span data-bind="text: Name"></span> @*<small data-bind="if:Deadline">Deadline: <span data-bind="moment(Deadline()).format('LLL')"></span></small>*@
+    </h3>
     <h5 data-bind="html:Description"></h5>
     <div style="margin: 5px;">
         <button b-context="BootstrapTagHelpers.Forms.ButtonContext.Success" b-modal-target="editingJobModal" b-pull-right><glyphicon icon="Plus"></glyphicon><span b-hidden-xs>  Neuer Task</span></button>
@@ -28,40 +37,53 @@
     </div>
     <table b-responsive b-responsive-table style="width: 100%; table-layout: auto;">
         <thead>
-            <tr data-bind="foreach: OrderedColumns">
-                <th style="min-width: 300px;" class="hasPopover" data-bind="style:{'background-color':Color}">
-                    <span data-bind="text:Name"></span>
-                    <button-group b-pull-right>
-                        <button data-bind="click:$root.MoveLeft, disable: Index()==0"><glyphicon icon="ArrowLeft"></glyphicon></button>
-                        <button data-bind="click:$root.MoveRight, disable: Index()==$parent.Columns().length-1"><glyphicon icon="ArrowRight"></glyphicon></button>
-                    </button-group>
-                </th>
-            </tr>
+        <tr data-bind="foreach: OrderedColumns">
+            <th style="min-width: 300px;" class="hasPopover" data-bind="style:{'background-color':Color}">
+                <span data-bind="text:Name"></span>
+                <button-group b-pull-right>
+                    <button data-bind="click:$root.MoveLeft, disable: Index()==0"><glyphicon icon="ArrowLeft"></glyphicon></button>
+                    <button data-bind="click:$root.MoveRight, disable: Index()==$parent.Columns().length-1"><glyphicon icon="ArrowRight"></glyphicon></button>
+                </button-group>
+            </th>
+        </tr>
         </thead>
         <tbody>
-            <tr data-bind="foreach: OrderedColumns">
-                <td data-bind="foreach: Jobs, style:{'background-color':Color}">
-                    <panel class="hasPopover">
-                        <heading>
-                            <span data-bind="text:Name"></span>
-                            <button-group b-pull-right>
-                                <button data-bind="click:$root.MoveLeft, disable: $parent.Index()==0"><glyphicon icon="ArrowLeft"></glyphicon></button>
-                                <button data-bind="click:$root.MoveRight, disable: $parent.Index()==$parents[1].Columns().length-1"><glyphicon icon="ArrowRight"></glyphicon></button>
-                            </button-group>
-                            <div class="clearfix"></div>
-                        </heading>
-                        <panel-body>
-                            <div data-bind="html:Description"></div>
-                            <!-- ko foreach: Categories -->
-                            <span class="label" data-bind="text:Name, style:{'background-color':Color}"></span>
-                            <!-- /ko -->
-                        </panel-body>
-                    </panel>
-                </td>
-            </tr>
+        <tr data-bind="foreach: OrderedColumns">
+            <td data-bind="foreach: Jobs, style:{'background-color':Color}">
+                <panel class="hasPopover">
+                    <heading>
+                        <span data-bind="text:Name"></span>
+                        <button-group b-pull-right>
+                            <button data-bind="click:$root.MoveLeft, disable: $parent.Index()==0"><glyphicon icon="ArrowLeft"></glyphicon></button>
+                            <button data-bind="click:$root.MoveRight, disable: $parent.Index()==$parents[1].Columns().length-1"><glyphicon icon="ArrowRight"></glyphicon></button>
+                        </button-group>
+                        <div class="clearfix"></div>
+                    </heading>
+                    <panel-body>
+                        <div data-bind="html:Description"></div>
+                        <!-- ko foreach: Categories -->
+                        <span class="label" data-bind="text:Name, style:{'background-color':Color}"></span>
+                        <!-- /ko -->
+                    </panel-body>
+                </panel>
+            </td>
+        </tr>
         </tbody>
     </table>
 </div>
+
+<panel id="chat" style="width: 400px; position: absolute; bottom: 0; right: 25px; display: none;"  data-bind="visible: SelectedProject, with: SelectedProject">
+    <heading>Chat</heading>
+    <panel-body style="max-height: 500px; overflow-y: scroll;" data-bind="foreach: ChatMessages">
+        <span data-bind="text:Name" style="font-weight: bold;"></span><br/>
+        <span data-bind="text:Message"></span>
+        <hr/>
+    </panel-body>
+    <footer data-bind="with:$root.DummyMessage">
+        <button b-pull-right data-bind="click:$root.SendMessage">Senden</button>
+        <textarea data-bind="textInput:Message"></textarea>
+    </footer>
+</panel>
 
 <script type="text/html" id="singleCategorySelector">
     <label data-bind="visible: Label, text: Label"></label>
@@ -77,7 +99,7 @@
     <label data-bind="visible: Label, text: Label"></label>
     <div class="multiselectContainer">
         <div class="btn-group">
-            <select required multiple style="width: 100%" data-bind="options: $root.Categories, optionsText:'Name', selectedOptions:Categories, xoptionsCaption:'Kategorie wählen...', optionsAfterRender: $root.SetOptionKey,multiselect:{ optionsKey: 'data-id', observableKey: 'Id' }"></select>
+            <select multiple style="width: 100%" data-bind="options: $root.Categories, optionsText:'Name', selectedOptions:Categories, xoptionsCaption:'Kategorie wählen...', optionsAfterRender: $root.SetOptionKey,multiselect:{ optionsKey: 'data-id', observableKey: 'Id' }"></select>
             <button type="button" title="Neue Kategorie" b-modal-target="editingCategoryModal" onclick="return false;"><glyphicon icon="Plus"></glyphicon></button>
         </div>
     </div>

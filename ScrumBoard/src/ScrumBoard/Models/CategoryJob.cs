@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using ScrumBoard.Controllers.WebApi;
 
 namespace ScrumBoard.Models
 {
@@ -16,15 +18,16 @@ namespace ScrumBoard.Models
        
         public bool RemoveFromContext(SbDbContext context)
         {
-            if (context.Entry(context).State == EntityState.Deleted)
+            if (context.Entry(this).State == EntityState.Deleted)
                 return false;
             context.Remove(this);
+            ContextController.AddDeletedEntity(this);
             return true;
         }
 
         public bool AddOrUpdate(SbDbContext context)
         {
-            if (JobId == null || CategoryId == null)
+            if (!context.CategoryJobs.Any(cJ=>cJ.JobId==JobId && cJ.CategoryId==CategoryId))
             {
                 context.Add(this);
                 InsertDate = DateTime.Now;

@@ -34,6 +34,7 @@ namespace ScrumBoard.Models
             if (Id == null || context.Entry(this).State == EntityState.Deleted)
                 return false;
             context.Remove(this);
+            ContextController.AddDeletedEntity(this);
             return true;
         }
 

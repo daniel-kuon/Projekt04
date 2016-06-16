@@ -205,8 +205,9 @@ module ClientModel {
         Description = ko.observable<string>();
         Deadline = ko.observable<string>();
         Columns = ko.observableArray<Column>();
+        ChatMessages = ko.observableArray<ChatMessage>();
 
-        OrderedColumns=ko.computed(()=> this.Columns().sort((c1, c2) => c1.Index() - c2.Index()));
+        OrderedColumns = ko.computed(() => this.Columns().sort((c1, c2) => c1.Index() - c2.Index()));
 
         Context() {
             return mapViewModel.Projects as any;
@@ -244,7 +245,7 @@ module ClientModel {
         Project = ko.observable<Project>();
         ProjectId = ko.observable<number>();
         IsDummyColumn = ko.observable<boolean>();
-        Index=ko.observable<number>();
+        Index = ko.observable<number>();
 
 
         Context() {
@@ -296,7 +297,10 @@ module ClientModel {
         public OnSaved(): boolean {
             if (!super.OnSaved())
                 return false;
-            if (this.Column() === undefined || this.Column().Id() !== this.ColumnId()) {
+            if (this.Column() === undefined) {
+                this.Column(mapViewModel.GetColumnById(this.ColumnId()));
+            } else if (this.Column().Id() !== this.ColumnId()) {
+                this.Column().Jobs.remove(this);
                 this.Column(mapViewModel.GetColumnById(this.ColumnId()));
             }
             if (this.Column() !== undefined && this.Column().Jobs.indexOf(this) === -1)
@@ -306,8 +310,8 @@ module ClientModel {
 
         public OnSaving(): boolean {
             if (this.Column().Id() !== this.ColumnId()) {
-                if (this.ColumnId() !== undefined)
-                    mapViewModel.GetColumnById(this.ColumnId()).Jobs.remove(this);
+                //if (this.ColumnId() !== undefined)
+                //    mapViewModel.GetColumnById(this.ColumnId()).Jobs.remove(this);
                 this.ColumnId(this.Column().Id());
             }
             return false;
@@ -341,17 +345,35 @@ module ClientModel {
                 return false;
             return true;
         }
-        s
     }
 
-    export class ChatMessage extends  Entity {
+    export class ChatMessage extends Entity {
+
         Message = ko.observable<string>();
-        Project = ko.observable<Project>(mapViewModel.SelectedProject());
-        ProjectId = ko.observable<number>(mapViewModel.SelectedProject().Id());
+        Project = ko.observable<Project>();
+        ProjectId = ko.observable<number>();
         Name = ko.observable<string>();
 
         Context(): KnockoutObservableArray<this> {
             return <any>mapViewModel.ChatMessages;
+        }
+
+
+
+        OnSaved(): boolean {
+            super.OnSaved();
+            if (this.Project() === undefined || this.Project().Id() !== this.ProjectId()) {
+                this.Project(mapViewModel.GetProjectById(this.ProjectId()));
+            }
+            if (this.Project() !== undefined && this.Project().ChatMessages.indexOf(this) === -1)
+                this.Project().ChatMessages.push(this);
+            return false;
+        }
+
+        OnSaving(): boolean {
+            this.Project(mapViewModel.SelectedProject());
+            this.ProjectId(this.Project().Id());
+            return true;
         }
     }
 

@@ -22,7 +22,7 @@ namespace ScrumBoard.Models
         {
             CategoriesJobs = context.Set<CategoryJob>().Where(c => c.JobId == Id).ToList();
             CategoriesJobs.AddRange(Categories.Where(i => CategoriesJobs.All(c => c.CategoryId != i.Id)).Select(i => new CategoryJob() { CategoryId = i.Id, Job = Id!=null ?null : this, JobId = Id}));
-            CategoriesJobs.Where(aI => Categories.All(i => aI.CategoryId != i.Id)).ToList().ForEach(aI => context.Remove(aI));
+            CategoriesJobs.Where(aI => Categories.All(i => aI.CategoryId != i.Id)).ToList().ForEach(aI => aI.RemoveFromContext(context));
         }
 
         public override bool RemoveFromContext(SbDbContext context)
